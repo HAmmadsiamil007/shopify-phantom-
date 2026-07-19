@@ -1,0 +1,869 @@
+{%- if section.settings.divider -%}<div class="section--divider">{%- endif -%}
+
+{%- liquid
+  if section.settings.buttons_style == 'filled'
+    assign btn_class = 'btn'
+  elsif section.settings.buttons_style == 'outlined'
+    assign btn_class = 'btn btn--secondary'
+  else
+    assign btn_class = 'text-link'
+  endif
+-%}
+
+{%- capture slot -%}
+  <div class="offers-drawer">
+    {%- if section.settings.show_icon or section.settings.title != blank -%}
+      <div class="offers-drawer__heading-wrapper" data-offers-drawer-heading>
+        {%- if section.settings.show_icon -%}
+          <span class="offers-drawer__icon" data-offers-drawer-icon>
+            {%- render 'ui-icon', name: 'gift', library: 'ph-icon' -%}
+          </span>
+        {%- endif -%}
+        {%- if section.settings.title != blank -%}
+          <h3 class="offers-drawer__title">{{ section.settings.title }}</h3>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.description != blank -%}
+      <div class="offers-drawer__description">{{ section.settings.description }}</div>
+    {%- endif -%}
+
+    <div class="offers-drawer__blocks">
+      {%- if section.blocks.size > 0 -%}
+        {%- assign has_expirable = false -%}
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'offer' -%}
+              {%- liquid
+                assign has_content = false
+                if block.settings.image != blank or block.settings.title != blank or block.settings.description != blank or block.settings.discount_code != blank or block.settings.button_label != blank
+                  assign has_content = true
+                endif
+                if block.settings.show_countdown and block.settings.timer_expiry_action == 'hide'
+                  assign has_expirable = true
+                endif
+
+                if block.settings.image_position == 'above'
+                  assign has_image_above = true
+                else
+                  assign has_image_above = false
+                endif
+
+                assign date_parts = block.settings.end_date | split: '/'
+                assign cd_year = date_parts[2]
+                assign cd_month = date_parts[0]
+                assign cd_day = date_parts[1]
+                assign time_parts = block.settings.end_time | split: ':'
+                assign cd_hour = time_parts[0]
+                assign cd_minute = time_parts[1]
+              -%}
+
+              {%- if has_content -%}
+                <div
+                  class="offers-drawer__block offers-drawer__offer offers-drawer__offer--{{ block.settings.image_position }}"
+                  {% if block.settings.show_countdown and block.settings.timer_expiry_action == 'hide' %}
+                    data-timer-block
+                    data-timer-id="{{ block.id }}"
+                  {% endif %}
+                >
+                  {%- if block.settings.image != blank -%}
+                    <div class="offers-drawer__offer-image">
+                      {%- if block.settings.link != blank -%}
+                        <a href="{{ block.settings.link }}">
+                      {%- endif -%}
+                        {%- render 'image-element',
+                          img: block.settings.image,
+                          loading: 'lazy',
+                          classes: 'offers-drawer__offer-img'
+                        -%}
+                      {%- if block.settings.link != blank -%}
+                        </a>
+                      {%- endif -%}
+
+                      {%- if block.settings.show_countdown and has_image_above -%}
+                        <div class="offers-drawer__countdown-overlay">
+                          <countdown-timer
+                            data-year="{{ cd_year }}"
+                            data-month="{{ cd_month }}"
+                            data-day="{{ cd_day }}"
+                            data-hour="{{ cd_hour | default: '23' }}"
+                            data-minute="{{ cd_minute | default: '59' }}"
+                            data-hide-timer="true"
+                          >
+                            <div class="offers-drawer__timer-display" data-time-display>
+                              <div class="offers-drawer__timer-unit">
+                                <span class="offers-drawer__timer-value" date-days-placeholder>00</span>
+                                {%- if block.settings.show_timer_labels -%}
+                                  <span class="offers-drawer__timer-label">Days</span>
+                                {%- endif -%}
+                              </div>
+                              <span class="offers-drawer__timer-sep">:</span>
+                              <div class="offers-drawer__timer-unit">
+                                <span class="offers-drawer__timer-value" date-hours-placeholder>00</span>
+                                {%- if block.settings.show_timer_labels -%}
+                                  <span class="offers-drawer__timer-label">Hrs</span>
+                                {%- endif -%}
+                              </div>
+                              <span class="offers-drawer__timer-sep">:</span>
+                              <div class="offers-drawer__timer-unit">
+                                <span class="offers-drawer__timer-value" date-minutes-placeholder>00</span>
+                                {%- if block.settings.show_timer_labels -%}
+                                  <span class="offers-drawer__timer-label">Min</span>
+                                {%- endif -%}
+                              </div>
+                              <span class="offers-drawer__timer-sep">:</span>
+                              <div class="offers-drawer__timer-unit">
+                                <span class="offers-drawer__timer-value" date-seconds-placeholder>00</span>
+                                {%- if block.settings.show_timer_labels -%}
+                                  <span class="offers-drawer__timer-label">Sec</span>
+                                {%- endif -%}
+                              </div>
+                            </div>
+                          </countdown-timer>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  {%- endif -%}
+
+                  <div class="offers-drawer__offer-content">
+                    {%- if block.settings.show_countdown and has_image_above == false -%}
+                      <div class="offers-drawer__countdown-inline">
+                        <countdown-timer
+                          data-year="{{ cd_year }}"
+                          data-month="{{ cd_month }}"
+                          data-day="{{ cd_day }}"
+                          data-hour="{{ cd_hour | default: '23' }}"
+                          data-minute="{{ cd_minute | default: '59' }}"
+                          data-hide-timer="true"
+                        >
+                          <div class="offers-drawer__timer-display" data-time-display>
+                            <div class="offers-drawer__timer-unit">
+                              <span class="offers-drawer__timer-value" date-days-placeholder>00</span>
+                              {%- if block.settings.show_timer_labels -%}
+                                <span class="offers-drawer__timer-label">Days</span>
+                              {%- endif -%}
+                            </div>
+                            <span class="offers-drawer__timer-sep">:</span>
+                            <div class="offers-drawer__timer-unit">
+                              <span class="offers-drawer__timer-value" date-hours-placeholder>00</span>
+                              {%- if block.settings.show_timer_labels -%}
+                                <span class="offers-drawer__timer-label">Hrs</span>
+                              {%- endif -%}
+                            </div>
+                            <span class="offers-drawer__timer-sep">:</span>
+                            <div class="offers-drawer__timer-unit">
+                              <span class="offers-drawer__timer-value" date-minutes-placeholder>00</span>
+                              {%- if block.settings.show_timer_labels -%}
+                                <span class="offers-drawer__timer-label">Min</span>
+                              {%- endif -%}
+                            </div>
+                            <span class="offers-drawer__timer-sep">:</span>
+                            <div class="offers-drawer__timer-unit">
+                              <span class="offers-drawer__timer-value" date-seconds-placeholder>00</span>
+                              {%- if block.settings.show_timer_labels -%}
+                                <span class="offers-drawer__timer-label">Sec</span>
+                              {%- endif -%}
+                            </div>
+                          </div>
+                        </countdown-timer>
+                      </div>
+                    {%- endif -%}
+
+                    {%- if block.settings.title != blank -%}
+                      <h4 class="offers-drawer__offer-title">
+                        {%- if block.settings.link != blank -%}
+                          <a href="{{ block.settings.link }}">
+                        {%- endif -%}
+                          {{ block.settings.title }}
+                        {%- if block.settings.link != blank -%}
+                          </a>
+                        {%- endif -%}
+                      </h4>
+                    {%- endif -%}
+
+                    {%- if block.settings.description != blank -%}
+                      <div class="offers-drawer__offer-description">{{ block.settings.description }}</div>
+                    {%- endif -%}
+
+                    {%- if block.settings.discount_code != blank -%}
+                      <div class="offers-drawer__discount-code" data-copy-code>
+                        <span class="offers-drawer__discount-code-text" data-copy-text>{{ block.settings.discount_code }}</span>
+                        <button
+                          class="offers-drawer__discount-code-btn"
+                          data-copy-btn
+                          aria-label="Copy discount code"
+                          type="button"
+                        >
+                          <span data-copy-icon>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                          </span>
+                          <span data-copied-icon class="offers-drawer__icon--hidden">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                          </span>
+                        </button>
+                      </div>
+                    {%- endif -%}
+
+                    {%- if block.settings.button_label != blank -%}
+                      <a
+                        href="{{ block.settings.link | default: '#' }}"
+                        class="{{ btn_class }} offers-drawer__offer-btn"
+                      >
+                        {{ block.settings.button_label }}
+                      </a>
+                    {%- endif -%}
+                  </div>
+                </div>
+              {%- endif -%}
+
+            {%- when 'product' -%}
+              <div class="offers-drawer__block offers-drawer__product">
+                {%- if block.settings.product != blank -%}
+                  {%- assign product = block.settings.product -%}
+                  <div class="offers-drawer__product-card">
+                    <a href="{{ product.url }}" class="offers-drawer__product-link">
+                      <div class="offers-drawer__product-image-wrap">
+                        {%- if product.featured_image != blank -%}
+                          <img
+                            src="{{ product.featured_image | image_url: width: 200 }}"
+                            alt="{{ product.featured_image.alt | escape }}"
+                            width="200"
+                            height="{{ 200 | divided_by: product.featured_image.aspect_ratio | round }}"
+                            loading="lazy"
+                          >
+                        {%- else -%}
+                          <div class="offers-drawer__product-placeholder">
+                            {%- render 'ui-icon', name: 'image' -%}
+                          </div>
+                        {%- endif -%}
+                      </div>
+                      <div class="offers-drawer__product-meta">
+                        <h4 class="offers-drawer__product-title">{{ product.title }}</h4>
+                        <span class="offers-drawer__product-price">{{ product.price | money }}</span>
+                      </div>
+                    </a>
+                  </div>
+                {%- else -%}
+                  <div class="offers-drawer__product-card offers-drawer__product-card--placeholder">
+                    <div class="offers-drawer__product-image-wrap">
+                      <div class="offers-drawer__product-placeholder">
+                        {%- render 'ui-icon', name: 'image' -%}
+                      </div>
+                    </div>
+                    <div class="offers-drawer__product-meta">
+                      <h4 class="offers-drawer__product-title">Product</h4>
+                      <span class="offers-drawer__product-price">$19.99</span>
+                    </div>
+                  </div>
+                {%- endif -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+
+        {%- if has_expirable -%}
+          <div class="offers-drawer__expired-state" data-expired-state style="display:none">
+            <div class="offers-drawer__empty">
+              {%- if section.settings.empty_message != blank -%}
+                <p class="offers-drawer__empty-message">{{ section.settings.empty_message }}</p>
+              {%- endif -%}
+              {%- if section.settings.suggested_collections != blank -%}
+                <div class="offers-drawer__empty-actions">
+                  {%- for collection in section.settings.suggested_collections -%}
+                    <a href="{{ collection.url }}" class="{{ btn_class }} offers-drawer__empty-btn">{{ collection.title }}</a>
+                  {%- endfor -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+      {%- else -%}
+        <div class="offers-drawer__empty">
+          {%- if section.settings.empty_message != blank -%}
+            <p class="offers-drawer__empty-message">{{ section.settings.empty_message }}</p>
+          {%- endif -%}
+          {%- if section.settings.suggested_collections != blank -%}
+            <div class="offers-drawer__empty-actions">
+              {%- for collection in section.settings.suggested_collections -%}
+                <a href="{{ collection.url }}" class="{{ btn_class }} offers-drawer__empty-btn">{{ collection.title }}</a>
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endcapture -%}
+
+{%- render 'drawer-overlay',
+  id: 'OffersDrawer',
+  placement: 'end',
+  size: '480px',
+  slot: slot,
+  label: ''
+-%}
+
+{%- if section.settings.divider -%}</div>{%- endif -%}
+
+{% style %}
+  .offers-drawer__heading-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .offers-drawer__heading-wrapper .offers-drawer__icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .offers-drawer__heading-wrapper .offers-drawer__icon svg {
+    width: 1.2em;
+    height: 1.2em;
+  }
+
+  .offers-drawer__title {
+    margin: 0;
+    font-size: calc(var(--typeHeaderSize) * 0.7);
+  }
+
+  .offers-drawer__description {
+    margin-bottom: 24px;
+  }
+
+  .offers-drawer__description > :last-child {
+    margin-bottom: 0;
+  }
+
+  .offers-drawer__blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .offers-drawer__block:not(:last-of-type) {
+    margin-bottom: 0;
+  }
+
+  .offers-drawer__offer {
+    border: 1px solid var(--ph-colorBorder, rgba(0,0,0,0.1));
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+  }
+
+  .offers-drawer__offer--above {
+    flex-direction: column;
+  }
+
+  .offers-drawer__offer--left {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .offers-drawer__offer--left .offers-drawer__offer-image {
+    flex-shrink: 0;
+    width: 120px;
+    align-self: stretch;
+  }
+
+  .offers-drawer__offer--left .offers-drawer__offer-image image-element,
+  .offers-drawer__offer--left .offers-drawer__offer-image a,
+  .offers-drawer__offer--left .offers-drawer__offer-image img {
+    height: 100%;
+    display: block;
+  }
+
+  .offers-drawer__offer--left .offers-drawer__offer-image img {
+    object-fit: cover;
+    width: 100%;
+  }
+
+  .offers-drawer__offer-image {
+    position: relative;
+  }
+
+  .offers-drawer__offer-image a {
+    display: block;
+  }
+
+  .offers-drawer__offer-image img {
+    display: block;
+    width: 100%;
+  }
+
+  .offers-drawer__countdown-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  .offers-drawer__countdown-inline {
+    margin-bottom: 8px;
+  }
+
+  .offers-drawer__timer-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--ph-colorBody, #fff);
+    border: 1px solid var(--ph-colorBorder, rgba(0,0,0,0.1));
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.85em;
+  }
+
+  .offers-drawer__timer-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .offers-drawer__timer-sep {
+    font-weight: 700;
+    padding-top: 2px;
+  }
+
+  .offers-drawer__timer-value {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .offers-drawer__timer-label {
+    font-size: 0.65em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+  }
+
+  .offers-drawer__offer-content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 10px;
+    padding: 16px;
+    min-width: 0;
+  }
+
+  .offers-drawer__offer-content > :first-child {
+    margin-top: 0;
+  }
+
+  .offers-drawer__offer-title {
+    margin: 0;
+    font-size: 1.1em;
+  }
+
+  .offers-drawer__offer-title a {
+    text-decoration: none;
+  }
+
+  .offers-drawer__offer-title a:hover {
+    text-decoration: underline;
+  }
+
+  .offers-drawer__offer-description {
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+
+  .offers-drawer__offer-description > :last-child {
+    margin-bottom: 0;
+  }
+
+  .offers-drawer__offer-description p {
+    margin: 0;
+  }
+
+  .offers-drawer__discount-code {
+    display: flex;
+    align-items: center;
+    border: 1px dashed var(--ph-colorBorder, rgba(0,0,0,0.2));
+    border-radius: 6px;
+    padding: 8px 12px;
+    gap: 8px;
+    background: var(--ph-colorBody, #fff);
+  }
+
+  .offers-drawer__discount-code-text {
+    flex: 1;
+    font-family: monospace;
+    font-size: 0.95em;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    user-select: all;
+  }
+
+  .offers-drawer__discount-code-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+
+  .offers-drawer__discount-code-btn:hover {
+    opacity: 1;
+  }
+
+  .offers-drawer__icon--hidden {
+    display: none;
+  }
+
+  .offers-drawer__discount-code-btn.copied [data-copy-icon] {
+    display: none;
+  }
+
+  .offers-drawer__discount-code-btn.copied [data-copied-icon] {
+    display: block;
+    color: #22c55e;
+  }
+
+  .offers-drawer__offer-btn {
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+
+  .offers-drawer__product-card {
+    display: flex;
+    border: 1px solid var(--ph-colorBorder, rgba(0,0,0,0.1));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .offers-drawer__product-link {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+  }
+
+  .offers-drawer__product-link:hover {
+    opacity: 0.8;
+  }
+
+  .offers-drawer__product-image-wrap {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .offers-drawer__product-image-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .offers-drawer__product-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ph-colorBody, #f5f5f5);
+  }
+
+  .offers-drawer__product-placeholder svg {
+    width: 24px;
+    height: 24px;
+    opacity: 0.3;
+  }
+
+  .offers-drawer__product-meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .offers-drawer__product-title {
+    margin: 0;
+    font-size: 0.95em;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .offers-drawer__product-price {
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+
+  .offers-drawer__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    gap: 16px;
+  }
+
+  .offers-drawer__empty-message {
+    font-size: 1em;
+    opacity: 0.7;
+    margin: 0;
+  }
+
+  .offers-drawer__empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .offers-drawer__empty-btn {
+    font-size: 0.9em;
+  }
+{% endstyle %}
+
+<script src="{{ 'offers-drawer.js' | asset_url }}" type="module" defer></script>
+
+{% schema %}
+{
+  "name": "Offers drawer",
+  "class": "index-section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Adds a slide-out offers drawer with discount codes, countdown timers, and product recommendations."
+    },
+    {
+      "type": "header",
+      "content": "Drawer"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show icon in heading",
+      "default": true
+    },
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "label": "Heading",
+      "default": "Offers"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "header",
+      "content": "Empty state"
+    },
+    {
+      "type": "textarea",
+      "id": "empty_message",
+      "label": "Message",
+      "default": "There are currently no active offers, but check back soon for new deals!"
+    },
+    {
+      "type": "collection_list",
+      "id": "suggested_collections",
+      "label": "Suggested collections",
+      "limit": 4
+    },
+    {
+      "type": "header",
+      "content": "Buttons"
+    },
+    {
+      "type": "select",
+      "id": "buttons_style",
+      "label": "Button style",
+      "default": "filled",
+      "options": [
+        {
+          "value": "filled",
+          "label": "Filled"
+        },
+        {
+          "value": "outlined",
+          "label": "Outlined"
+        },
+        {
+          "value": "underlined",
+          "label": "Underlined"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "divider",
+      "label": "Show section divider",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "offer",
+      "name": "Offer",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Image"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "Image position",
+          "default": "above",
+          "options": [
+            {
+              "value": "left",
+              "label": "Left"
+            },
+            {
+              "value": "above",
+              "label": "Above"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "label": "Heading",
+          "default": "Special offer"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "Description",
+          "default": "<p>Provide additional details about the offer you're running.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Discount code"
+        },
+        {
+          "type": "text",
+          "id": "discount_code",
+          "label": "Code",
+          "info": "The discount code to display. Customers can copy it with one click."
+        },
+        {
+          "type": "header",
+          "content": "Countdown timer"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_countdown",
+          "label": "Show countdown timer",
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "end_date",
+          "label": "End date",
+          "info": "Use the format mm/dd/yyyy (e.g. 01/31/2024)",
+          "visible_if": "{{ block.settings.show_countdown }}"
+        },
+        {
+          "type": "text",
+          "id": "end_time",
+          "label": "End time",
+          "info": "Use the format hh:mm:ss (e.g. 23:59:59). Uses your Shopify admin timezone.",
+          "visible_if": "{{ block.settings.show_countdown }}"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_timer_labels",
+          "label": "Show timer labels (Days, Hrs, Min, Sec)",
+          "default": true,
+          "visible_if": "{{ block.settings.show_countdown }}"
+        },
+        {
+          "type": "radio",
+          "id": "timer_expiry_action",
+          "label": "When timer expires",
+          "default": "leave",
+          "visible_if": "{{ block.settings.show_countdown }}",
+          "options": [
+            {
+              "value": "hide",
+              "label": "Hide this offer"
+            },
+            {
+              "value": "leave",
+              "label": "Leave at zero"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "Link"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop now"
+        }
+      ]
+    },
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Offers drawer",
+      "category": "Promotional"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["custom.popups"]
+  }
+}
+{% endschema %}

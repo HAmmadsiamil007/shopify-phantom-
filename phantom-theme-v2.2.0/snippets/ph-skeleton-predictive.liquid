@@ -1,0 +1,11 @@
+<div class="ph-skeleton--predictive" style="padding:16px;">
+  {%- for i in (1..5) -%}
+    <div class="ph-skeleton--predictive-row" style="display:flex;align-items:center;gap:12px;padding:8px 0;{% unless forloop.last %}border-bottom:1px solid rgba(0,0,0,0.06);{% endunless %}">
+      <div class="ph-skeleton ph-skeleton--avatar" style="width:40px;height:40px;flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div class="ph-skeleton ph-skeleton--text" style="width:70%;margin-bottom:4px;"></div>
+        <div class="ph-skeleton ph-skeleton--text-short" style="width:45%;"></div>
+      </div>
+    </div>
+  {%- endfor -%}
+</div>

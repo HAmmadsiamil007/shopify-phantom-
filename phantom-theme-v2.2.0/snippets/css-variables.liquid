@@ -1,0 +1,116 @@
+{%- style -%}
+    :root {
+    --typeHeaderPrimary: {{ settings.type_header_font_family.family }};
+    --typeHeaderFallback: {{ settings.type_header_font_family.fallback_families }};
+    --typeHeaderSize: {{ settings.type_header_base_size | default: '32' | append: 'px' }};
+    --typeHeaderWeight: {{ settings.type_header_font_family.weight }};
+    --typeHeaderLineHeight: {{ settings.type_header_line_height | default: 1.4 }};
+    --typeHeaderSpacing: {{ settings.type_header_spacing | default: '25' | divided_by: 1000.00 | append: 'em' }};
+
+    --typeBasePrimary:{{ settings.type_base_font_family.family }};
+    --typeBaseFallback:{{ settings.type_base_font_family.fallback_families }};
+    --typeBaseSize: {{ settings.type_base_size | default: 16 | append: 'px' }};
+    --typeBaseWeight: {{ settings.type_base_font_family.weight }};
+    --typeBaseSpacing: {{ settings.type_base_spacing | default: '50' | divided_by: 1000.00 | append: 'em' }};
+    --typeBaseLineHeight: {{ settings.type_base_line_height | default: 1.4 }};
+    --typeBaselineHeightMinus01: {{ settings.type_base_line_height | default: 1.4 | minus: 0.1 }};
+
+    --typeCollectionTitle: {{ settings.type_collection_size | append: 'px' }};
+
+    --iconWeight: {{ settings.icon_weight | default: '5px' }};
+    --iconLinecaps: {{ settings.icon_linecaps | default: 'miter' }};
+
+    {% if settings.button_style == 'round-slight' %}
+        --buttonRadius: 3px;
+    {% elsif settings.button_style == 'round' %}
+        --buttonRadius: 50px;
+    {% else %}
+        --buttonRadius: 0;
+    {% endif %}
+
+    --ph-colorGridOverlayOpacity: {{ settings.collection_grid_opacity | divided_by: 100.0 }};
+    --ph-colorAnnouncement: {{ settings.ph_color_announcement | default: "#1c1d1d" }};
+    --ph-colorAnnouncementText: {{ settings.ph_color_announcement_text | default: "#fff" }};
+
+    --ph-colorBody: {{ settings.ph_color_body_bg | default: "#fff" }};
+    --ph-colorBodyAlpha05: {{ settings.ph_color_body_bg | default: "#fff" | color_modify: 'alpha', 0.05 }};
+    --ph-colorBodyDim: {{ settings.ph_color_body_bg | default: "#1c1d1d" | color_darken: 5 }};
+    --ph-colorBodyLightDim: {{ settings.ph_color_body_bg | default: '#fff' | color_darken: 2 }};
+    --ph-colorBodyMediumDim: {{ settings.ph_color_body_bg | default: '#fff' | color_darken: 4 }};
+
+
+    --ph-colorBorder: {{ settings.ph_color_borders | default: "#1c1d1d" }};
+
+    --ph-colorBtnPrimary: {{ settings.ph_color_button | default: "#000" }};
+    --ph-colorBtnPrimaryLight: {{ settings.ph_color_button | default: "#000" | color_lighten: 10 }};
+    --ph-colorBtnPrimaryDim: {{ settings.ph_color_button | default: "#000" | color_darken: 5 }};
+    --ph-colorBtnPrimaryText: {{ settings.ph_color_button_text | default: "#fff" }};
+
+    --ph-colorCartDot: {{ settings.ph_color_cart_dot | default: "#ff4f33" }};
+
+    --ph-colorDrawers: {{ settings.ph_color_drawer_background | default: "#1c1d1d" }};
+    --ph-colorDrawersDim: {{ settings.ph_color_drawer_background | default: "#1c1d1d" | color_darken: 5 }};
+    --ph-colorDrawerBorder: {{ settings.ph_color_drawer_border | default: "#343535" }};
+    --ph-colorDrawerText: {{ settings.ph_color_drawer_text | default: "#fff" }};
+    --ph-colorDrawerTextDark: {{ settings.ph_color_drawer_text | default: "#fff" | color_darken: 15 }};
+    --ph-colorDrawerButton: {{ settings.ph_color_drawer_button | default: "#a26b25" }};
+    --ph-colorDrawerButtonText: {{ settings.ph_color_drawer_button_text | default: "#fff" }};
+
+    --ph-colorFooter: {{ settings.ph_color_footer | default: "#111" }};
+    --ph-colorFooterText: {{ settings.ph_color_footer_text | default: "#fff" }};
+    --ph-colorFooterTextAlpha01: {{ settings.ph_color_footer_text | default: "#fff" }};
+
+    --ph-colorGridOverlay: {{ settings.collection_grid_tint | default: "#000" }};
+    --ph-colorGridOverlayOpacity: {{ settings.collection_grid_opacity | divided_by: 100.0 }};
+
+    --ph-colorHeaderTextAlpha01: {{ settings.ph_color_header_text | default: '#000' | color_modify: 'alpha', 0.1 }};
+
+    --ph-colorHeroText: {{ settings.ph_color_image_text | default: "#fff" }};
+
+    --ph-colorSmallImageBg: {{ settings.ph_color_small_image_bg | default: "#eee" }};
+    --ph-colorLargeImageBg: {{ settings.ph_color_large_image_bg | default: "#1c1d1d" }};
+
+    --ph-colorImageOverlay: {{ settings.ph_color_image_overlay | default: "#000" }};
+    --ph-colorImageOverlayOpacity: {{ settings.ph_color_image_overlay_opacity | divided_by: 100.0 }};
+    --ph-colorImageOverlayTextShadow: {{ settings.ph_color_image_overlay_text_shadow | divided_by: 100.0 }};
+
+    --ph-colorLink: {{ settings.ph_color_body_text | default: "#1c1d1d" }};
+
+    --ph-colorModalBg: {{ settings.ph_color_modal_overlays | default: "#000" | color_modify: 'alpha', 0.6 }};
+
+    --ph-colorNav: {{ settings.ph_color_header | default: "#fff" }};
+    --ph-colorNavText: {{ settings.ph_color_header_text | default: "#000" }};
+
+    --ph-colorPrice: {{ settings.ph_color_price | default: "#1c1d1d" }};
+
+    --ph-colorSaleTag: {{ settings.ph_color_sale_tag | default: "#1c1d1d" }};
+    --ph-colorSaleTagText: {{ settings.ph_color_sale_tag_text | default: "#ffffff" }};
+
+    --ph-colorTextBody: {{ settings.ph_color_body_text | default: "#1c1d1d" }};
+    --ph-colorTextBodyAlpha015: {{ settings.ph_color_body_text | default: '#1c1d1d' | color_modify: 'alpha', 0.15 }};
+    --ph-colorTextBodyAlpha005: {{ settings.ph_color_body_text | default: "#1c1d1d"  | color_modify: 'alpha', 0.05 }};
+    --ph-colorTextBodyAlpha008: {{ settings.ph_color_body_text | default: '#1c1d1d' | color_modify: 'alpha', 0.08 }};
+    --ph-colorTextSavings: {{ settings.ph_color_savings_text | default: "#1c1d1d" }};
+
+    --urlSelectChevron: url({{ 'ph-chevron-down.svg' | asset_url | split: '?' | first }});
+    --urlFooterChevron: url({{ 'ph-footer-chevron.svg' | asset_url | split: '?' | first }});
+    --urlWhiteChevron: url({{ 'ph-white-chevron.svg' | asset_url | split: '?' | first }});
+
+    --grid-gutter: 17px;
+    --drawer-gutter: 20px;
+
+    --sizeChartMargin: 25px 0;
+    --sizeChartIconMargin: 5px;
+
+    --newsletterReminderPadding: 40px;
+
+    /*Shop Pay Installments*/
+    --color-body-text: {{ settings.ph_color_body_text | default: "#1c1d1d" }};
+    --color-body: {{ settings.ph_color_body_bg | default: "#fff" }};
+    --color-bg: {{ settings.ph_color_body_bg | default: "#fff" }};
+    }
+
+    .placeholder-content {
+    background-image: linear-gradient(100deg, {{ settings.ph_color_small_image_bg }} 40%, {{ settings.ph_color_small_image_bg | color_darken: 3 }} 63%, {{ settings.ph_color_small_image_bg }} 79%);
+    }
+{%- endstyle -%}

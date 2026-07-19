@@ -1,0 +1,15 @@
+{% doc %}
+  Copyright © PHANTOM Themes. All rights reserved.
+  
+  Renders the product description in an accordion format.
+  
+  This component displays the product description using rich text formatting within 
+  an expandable accordion interface. The accordion is open by default to show the 
+  description content immediately.
+  
+  @example
+  {% render 'pdp-description', product: closest.product %}
+{% enddoc %}
+
+
+{% render 'ui-text', variant: 'rte', text: product.description %}

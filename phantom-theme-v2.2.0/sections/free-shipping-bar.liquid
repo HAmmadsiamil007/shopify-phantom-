@@ -1,0 +1,371 @@
+{% style %}
+  #free-shipping-bar-{{ section.id }} {
+    --fsb-bg: {{ section.settings.bg_color }};
+    --fsb-text: {{ section.settings.text_color }};
+    --fsb-empty: {{ section.settings.empty_bar_color }};
+  }
+{% endstyle %}
+
+{% if section.settings.enable %}
+  {% capture config_json %}
+    {
+      "displayMode": "{{ section.settings.display_mode }}",
+      "animationStyle": "{{ section.settings.animation_style }}",
+      "floatingPosition": "{{ section.settings.floating_position }}",
+      "colors": {
+        "bg": "{{ section.settings.bg_color }}",
+        "text": "{{ section.settings.text_color }}",
+        "emptyBar": "{{ section.settings.empty_bar_color }}"
+      },
+      "templates": {
+        "empty": {{ section.settings.empty_text | default: 't:sections.free_shipping_bar.settings.empty_text.default' | t | json }},
+        "progress": {{ section.settings.progress_text | default: 't:sections.free_shipping_bar.settings.progress_text.default' | t | json }},
+        "unlocked": {{ section.settings.unlocked_text | default: 't:sections.free_shipping_bar.settings.unlocked_text.default' | t | json }},
+        "complete": {{ section.settings.complete_text | default: 't:sections.free_shipping_bar.settings.complete_text.default' | t | json }}
+      },
+      "tiers": [
+        {% for block in section.blocks %}
+          {
+            "threshold": {{ block.settings.threshold }},
+            "label": {{ block.settings.label | json }},
+            "description": {{ block.settings.description | json }},
+            "fill": "{{ block.settings.fill_color }}"
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ]
+    }
+  {% endcapture %}
+
+  <script type="application/json" data-ph-shipping-config>{{ config_json }}</script>
+
+  {%- if settings.ph_motion_skeletons_enable -%}
+    <div class="ph-skeleton--container" data-skeleton="shipping-bar" hidden>
+      <div style="padding:16px;">
+        <div class="ph-skeleton ph-skeleton--text" style="height:12px;border-radius:6px;margin-bottom:8px;"></div>
+        <div class="ph-skeleton ph-skeleton--text-short" style="height:10px;border-radius:5px;"></div>
+      </div>
+    </div>
+  {%- endif -%}
+  <ph-shipping-bar
+    data-display-mode="{{ section.settings.display_mode }}"
+    data-cart-total="{{ cart.total_price | default: 0 }}"
+    data-currency="{{ cart.currency.iso_code | default: 'USD' }}"
+    data-animation="{{ section.settings.animation_style }}"
+    data-floating-position="{{ section.settings.floating_position }}"
+  >
+    {% for block in section.blocks %}
+      <template
+        data-tier
+        data-threshold="{{ block.settings.threshold }}"
+        data-label="{{ block.settings.label | escape }}"
+        data-description="{{ block.settings.description | escape }}"
+        data-fill="{{ block.settings.fill_color }}"
+      ></template>
+    {% endfor %}
+  </ph-shipping-bar>
+{% endif %}
+
+{% stylesheet %}
+  ph-shipping-bar {
+    display: block;
+    --fsb-bg: var(--ph-colorBody, #fff);
+    --fsb-text: var(--ph-colorTextBody, #1c1d1d);
+    --fsb-empty: #E8E8E8;
+    --fsb-fill: #D4A574;
+  }
+
+  .fsb {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--fsb-text, var(--ph-colorTextBody, #1c1d1d));
+    background: var(--fsb-bg, var(--ph-colorBody, #fff));
+  }
+
+  .fsb--floating {
+    position: fixed;
+    z-index: 9999;
+    inset-inline: 0;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.08);
+    padding: 12px 16px;
+  }
+
+  .fsb--floating[style*="--fsb-float-pos: top"] {
+    top: 0;
+    bottom: auto;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .fsb--floating:not([style*="--fsb-float-pos: top"]) {
+    bottom: 0;
+    top: auto;
+  }
+
+  .fsb__inner {
+    max-width: 600px;
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  .fsb__message {
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .fsb__track {
+    position: relative;
+    height: 8px;
+    background: var(--fsb-empty, #E8E8E8);
+    border-radius: 4px;
+    overflow: visible;
+    margin: 16px 0 4px;
+  }
+
+  .fsb__fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--fsb-fill, #D4A574);
+    border-radius: 4px;
+    min-width: 0;
+    will-change: width;
+  }
+
+  .fsb__fill--animated {
+    transition: width 0.4s ease;
+  }
+
+  .fsb--bounce .fsb__fill--animated {
+    transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .fsb__marker {
+    position: absolute;
+    top: -12px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    line-height: 1;
+    color: var(--fsb-text, var(--ph-colorTextBody, #1c1d1d));
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+    cursor: default;
+  }
+
+  .fsb__marker-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .fsb__marker[data-unlocked="true"] .fsb__marker-icon {
+    color: var(--fsb-fill, #D4A574);
+  }
+
+  .fsb__marker-label {
+    white-space: nowrap;
+  }
+
+  .fsb-error {
+    padding: 8px;
+    text-align: center;
+    color: var(--fsb-text, var(--ph-colorTextBody, #1c1d1d));
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fsb__fill--animated {
+      transition: none;
+    }
+    .fsb--floating {
+      transition: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .fsb--floating {
+      padding: 12px 24px;
+    }
+  }
+{% endstylesheet %}
+
+<script src="{{ 'free-shipping-bar.js' | asset_url }}" type="module" defer></script>
+
+{% schema %}
+{
+  "name": "t:sections.free_shipping_bar.name",
+  "class": "shopify-section--free-shipping-bar",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable",
+      "label": "t:sections.free_shipping_bar.settings.enable",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "display_mode",
+      "label": "t:sections.free_shipping_bar.settings.display_mode",
+      "default": "both",
+      "options": [
+        { "value": "floating", "label": "t:sections.free_shipping_bar.settings.display_mode.options.floating" },
+        { "value": "inline", "label": "t:sections.free_shipping_bar.settings.display_mode.options.inline" },
+        { "value": "both", "label": "t:sections.free_shipping_bar.settings.display_mode.options.both" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "animation_style",
+      "label": "t:sections.free_shipping_bar.settings.animation_style",
+      "default": "smooth",
+      "options": [
+        { "value": "smooth", "label": "t:sections.free_shipping_bar.settings.animation_style.options.smooth" },
+        { "value": "bounce", "label": "t:sections.free_shipping_bar.settings.animation_style.options.bounce" },
+        { "value": "none", "label": "t:sections.free_shipping_bar.settings.animation_style.options.none" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "floating_position",
+      "label": "t:sections.free_shipping_bar.settings.floating_position",
+      "default": "bottom",
+      "options": [
+        { "value": "bottom", "label": "t:sections.free_shipping_bar.settings.floating_position.options.bottom" },
+        { "value": "top", "label": "t:sections.free_shipping_bar.settings.floating_position.options.top" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.free_shipping_bar.settings.header_colors"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "t:sections.free_shipping_bar.settings.bg_color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:sections.free_shipping_bar.settings.text_color",
+      "default": "#1C1D1D"
+    },
+    {
+      "type": "color",
+      "id": "empty_bar_color",
+      "label": "t:sections.free_shipping_bar.settings.empty_bar_color",
+      "default": "#E8E8E8"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.free_shipping_bar.settings.header_text"
+    },
+    {
+      "type": "text",
+      "id": "empty_text",
+      "label": "t:sections.free_shipping_bar.settings.empty_text",
+      "default": "Add items to your cart for free shipping!",
+      "info": "t:sections.free_shipping_bar.settings.empty_text_info"
+    },
+    {
+      "type": "text",
+      "id": "progress_text",
+      "label": "t:sections.free_shipping_bar.settings.progress_text",
+      "default": "Add {{ amount }} more for {{ reward }}",
+      "info": "t:sections.free_shipping_bar.settings.progress_text_info"
+    },
+    {
+      "type": "text",
+      "id": "unlocked_text",
+      "label": "t:sections.free_shipping_bar.settings.unlocked_text",
+      "default": "{{ reward }} unlocked! Add {{ amount }} more for {{ next_reward }}",
+      "info": "t:sections.free_shipping_bar.settings.unlocked_text_info"
+    },
+    {
+      "type": "text",
+      "id": "complete_text",
+      "label": "t:sections.free_shipping_bar.settings.complete_text",
+      "default": "All rewards unlocked! {{ max_reward }} shipping",
+      "info": "t:sections.free_shipping_bar.settings.complete_text_info"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "tier",
+      "name": "t:sections.free_shipping_bar.blocks.tier.name",
+      "limit": 10,
+      "settings": [
+        {
+          "type": "number",
+          "id": "threshold",
+          "label": "t:sections.free_shipping_bar.blocks.tier.settings.threshold",
+          "default": 50
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.free_shipping_bar.blocks.tier.settings.label",
+          "default": "Free Standard"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "t:sections.free_shipping_bar.blocks.tier.settings.description",
+          "default": "Save $5"
+        },
+        {
+          "type": "color",
+          "id": "fill_color",
+          "label": "t:sections.free_shipping_bar.blocks.tier.settings.fill_color",
+          "default": "#D4A574"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.free_shipping_bar.presets.name",
+      "blocks": [
+        {
+          "type": "tier",
+          "settings": {
+            "threshold": 50,
+            "label": "Free Standard",
+            "description": "Save $5",
+            "fill_color": "#D4A574"
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "threshold": 100,
+            "label": "Free Express",
+            "description": "Save $12",
+            "fill_color": "#C17B5C"
+          }
+        },
+        {
+          "type": "tier",
+          "settings": {
+            "threshold": 200,
+            "label": "Free Overnight",
+            "description": "Save $25",
+            "fill_color": "#A5636C"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["footer", "header", "custom.popups"]
+  }
+}
+{% endschema %}

@@ -1,0 +1,13 @@
+﻿.DS_Store
+*.log
+node_modules/
+.shopifyignore
+.serena/
+forensic audit/
+*.original.md
+_scripts/
+nul
+nul.txt
+theme-check-output.txt
+.superpowers/
+docs/

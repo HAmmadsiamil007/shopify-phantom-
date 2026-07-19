@@ -1,0 +1,94 @@
+{% capture slot_gallery %}
+  {% content_for 'block', type: '_ph-pdp-media-gallery', id: 'section-flex-pdp-media-gallery' %}
+{% endcapture %}
+
+{% capture slot_details %}
+  {% content_for 'blocks' %}
+{% endcapture %}
+
+<div data-aos="{% if section.settings.entrance_animation and section.settings.entrance_animation != 'existing' %}{{ section.settings.entrance_animation }}{% endif %}">
+  {%- render 'pdp-main', slot_gallery: slot_gallery, slot_details: slot_details, section: section -%}
+</div>
+
+{% javascript %}
+  document.addEventListener('product-form:cart:navigate', (event) => {
+    theme.settings.cartType !== 'page' && event.preventDefault();
+  });
+
+  document.addEventListener('product-form:submit:success', () => {
+    document.dispatchEvent(new CustomEvent('ajaxProduct:added'));
+  });
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:flex_pdp.section.high_variant.name",
+  "settings": [
+    {
+      "type": "select",
+      "id": "padding",
+      "label": "t:flex_pdp.section.high_variant.settings.padding.label",
+      "default": "both",
+      "options": [
+        { "value": "none", "label": "t:flex_pdp.section.high_variant.settings.padding.options.none.label" },
+        { "value": "top", "label": "t:flex_pdp.section.high_variant.settings.padding.options.top.label" },
+        { "value": "bottom", "label": "t:flex_pdp.section.high_variant.settings.padding.options.bottom.label" },
+        { "value": "both", "label": "t:flex_pdp.section.high_variant.settings.padding.options.both.label" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "entrance_animation",
+      "label": "t:sections.common.settings.entrance_animation.label",
+      "default": "existing",
+      "options": [
+        { "value": "existing", "label": "t:sections.common.settings.entrance_animation.options.existing.label" },
+        { "value": "ph-fade-up", "label": "t:sections.common.settings.entrance_animation.options.ph-fade-up.label" },
+        { "value": "ph-scale-in", "label": "t:sections.common.settings.entrance_animation.options.ph-scale-in.label" },
+        { "value": "ph-blur-in", "label": "t:sections.common.settings.entrance_animation.options.ph-blur-in.label" },
+        { "value": "ph-slide-left", "label": "t:sections.common.settings.entrance_animation.options.ph-slide-left.label" },
+        { "value": "ph-slide-right", "label": "t:sections.common.settings.entrance_animation.options.ph-slide-right.label" },
+        { "value": "ph-rotate-in", "label": "t:sections.common.settings.entrance_animation.options.ph-rotate-in.label" }
+      ]
+    }
+  ],
+  "blocks": [
+    {"type": "@app"},
+    {"type": "@theme"},
+    {"type": "_ph-pdp-buy-buttons"},
+    {"type": "_ph-pdp-description"},
+    {"type": "_ph-pdp-divider"},
+    {"type": "_ph-pdp-media-gallery"},
+    {"type": "_ph-pdp-policies"},
+    {"type": "_ph-pdp-price"},
+    {"type": "_ph-pdp-quantity-picker"},
+    {"type": "_ph-pdp-sku"},
+    {"type": "_ph-pdp-title"},
+    {"type": "_ph-pdp-variant-picker"},
+    {"type": "_ph-pdp-vendor"},
+    {"type": "_ph-pdp-pick-up"},
+    {"type": "_ph-pdp-installments"}
+  ],
+  "presets": [
+    {
+      "name": "t:flex_pdp.section.high_variant.name",
+      "category": "t:sections.categories.products",
+      "blocks": [
+        {"type": "_ph-pdp-title"},
+        {"type": "_ph-pdp-vendor"},
+        {"type": "_ph-pdp-price"},
+        {"type": "_ph-pdp-installments"},
+        {"type": "_ph-pdp-divider"},
+        {"type": "_ph-pdp-variant-picker"},
+        {"type": "_ph-pdp-quantity-picker"},
+        {"type": "_ph-pdp-buy-buttons"},
+        {"type": "_ph-pdp-pick-up"},
+        {"type": "_ph-pdp-description"}
+      ]
+    }
+  ],
+  "enabled_on": {
+    "templates": ["product"]
+  }
+}
+{% endschema %}

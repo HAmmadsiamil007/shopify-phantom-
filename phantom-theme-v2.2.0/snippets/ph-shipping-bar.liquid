@@ -1,0 +1,9 @@
+<ph-shipping-bar
+  data-display-mode="inline"
+  data-cart-total="{{ cart.total_price | default: 0 }}"
+  data-currency="{{ cart.currency.iso_code | default: 'USD' }}"
+  data-animation="smooth"
+>
+</ph-shipping-bar>
+
+<script src="{{ 'free-shipping-bar.js' | asset_url }}" type="module" defer></script>

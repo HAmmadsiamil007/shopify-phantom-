@@ -1,0 +1,60 @@
+{% doc %}
+  Copyright © PHANTOM Themes. All rights reserved.
+
+  A 3D model viewer component that integrates with Shopify's native model viewer.
+  Features progressive enhancement with configurable autoplay and aspect ratios.
+
+  @param {product} [product] - Product object containing the 3D model
+  @param {media} [media] - Media object containing the 3D model
+  @param {boolean} [autoplay] - Whether the model should autoplay (default: true)
+  @param {string} [media_crop] - Crop type of the media (16-9, portrait, landscape, square) (default: 'square')
+  @param {string} [hydration] - Hydration strategy for the component (default: 'on:visible')
+
+  @example
+  {% render 'ui-model', product: product, media: media %}
+{% enddoc %}
+
+{% liquid
+  assign product = product | default: nil
+  assign media = media | default: product.media | where: 'media_type', 'model' | first
+  assign autoplay = autoplay | default: true, allow_false: true
+  assign media_crop = media_crop | default: 'square'
+  assign hydration = hydration | default: 'on:visible'
+%}
+
+<lazy-load {{ hydration }}>
+  <div style="aspect-ratio: 1/1;">
+    {% if product != blank %}
+      {% if media %}
+        <link
+          rel="stylesheet"
+          href="https://cdn.shopify.com/shopifycloud/model-viewer-ui/assets/v1.0/model-viewer-ui.css"
+          media="print"
+          onload="this.media='all'; this.onload = null"
+        >
+
+        <model-media
+          style="display: block; height: 100%;"
+          handle="{{ product.handle }}"
+          {% if autoplay %}
+            autoplay
+          {% endif %}
+          defer-load
+        >
+          {{
+            media
+            | model_viewer_tag: image_size: '2048x', reveal: 'interaction', toggleable: true, defer-load: true
+          }}
+        </model-media>
+      {% endif %}
+    {%- else -%}
+      {% render 'ui-placeholder', name: 'image' %}
+    {%- endif -%}
+  </div>
+
+  <template data-lazy>
+    <script type="module">
+      import 'ui-model'
+    </script>
+  </template>
+</lazy-load>

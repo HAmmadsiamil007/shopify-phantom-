@@ -1,0 +1,745 @@
+{%- liquid
+  assign overlay_opacity = section.settings.image_overlay_opacity | divided_by: 100.0
+  assign overlay_color = section.settings.image_overlay_color
+  assign bg_color = section.settings.background_color
+  assign text_color = section.settings.text_color
+-%}
+
+{% style %}
+  #quiz-{{ section.id }} {
+    --quiz-bg: {{ bg_color }};
+    --quiz-text: {{ text_color }};
+    --quiz-overlay: {{ overlay_color }};
+    --quiz-overlay-opacity: {{ overlay_opacity }};
+    --quiz-section-height: {{ section.settings.section_height }};
+    --quiz-content-padding: {{ section.settings.content_padding }}px;
+  }
+
+  #quiz-{{ section.id }} .quiz-section__wrapper {
+    position: relative;
+    min-height: var(--quiz-section-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--quiz-bg);
+  }
+
+  #quiz-{{ section.id }} .quiz-section__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  #quiz-{{ section.id }} .quiz-section__bg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #quiz-{{ section.id }} .quiz-section__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: {{ overlay_color }};
+    opacity: {{ overlay_opacity }};
+  }
+
+  #quiz-{{ section.id }} .quiz-section__content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 800px;
+    padding: var(--quiz-content-padding);
+    text-align: {{ section.settings.text_alignment }};
+    color: var(--quiz-text);
+  }
+
+  #quiz-{{ section.id }} .quiz-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: {{ section.settings.text_alignment }};
+    gap: 16px;
+  }
+
+  #quiz-{{ section.id }} .quiz-intro.is-hidden,
+  #quiz-{{ section.id }} .quiz-question.is-hidden,
+  #quiz-{{ section.id }} .quiz-results.is-hidden {
+    display: none;
+  }
+
+  #quiz-{{ section.id }} .quiz-question {
+    animation: quizFadeIn 0.4s ease forwards;
+  }
+
+  #quiz-{{ section.id }} .quiz-question.is-exiting {
+    animation: quizFadeOut 0.3s ease forwards;
+  }
+
+  @keyframes quizFadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes quizFadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+  }
+
+  #quiz-{{ section.id }} .quiz-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  #quiz-{{ section.id }} .quiz-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border: 2px solid color-mix(in srgb, var(--quiz-text), transparent 80%);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--quiz-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    font-size: 0.9em;
+  }
+
+  #quiz-{{ section.id }} .quiz-option:hover {
+    border-color: var(--quiz-text);
+    background: color-mix(in srgb, var(--quiz-text), transparent 90%);
+  }
+
+  #quiz-{{ section.id }} .quiz-option:active {
+    transform: scale(0.97);
+  }
+
+  #quiz-{{ section.id }} .quiz-option.is-loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  #quiz-{{ section.id }} .quiz-option__image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  #quiz-{{ section.id }} .quiz-option__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #quiz-{{ section.id }} .quiz-option__text {
+    font-weight: 500;
+  }
+
+  #quiz-{{ section.id }} .quiz-heading {
+    font-size: 1.5em;
+    margin-bottom: 8px;
+  }
+
+  #quiz-{{ section.id }} .quiz-question__heading {
+    font-size: 1.2em;
+    margin-bottom: 4px;
+  }
+
+  #quiz-{{ section.id }} .quiz-results {
+    animation: quizFadeIn 0.5s ease forwards;
+  }
+
+  #quiz-{{ section.id }} .quiz-product-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  #quiz-{{ section.id }} .quiz-card-slot {
+    min-height: 100px;
+  }
+
+  #quiz-{{ section.id }} .quiz-card-slot.is-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #quiz-{{ section.id }} .quiz-card-slot.is-loading::after {
+    content: '';
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--quiz-text);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  #quiz-{{ section.id }} .quiz-progress {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  #quiz-{{ section.id }} .quiz-progress__bar {
+    height: 4px;
+    background: color-mix(in srgb, var(--quiz-text), transparent 85%);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  #quiz-{{ section.id }} .quiz-progress__fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  #quiz-{{ section.id }} .quiz-progress__label {
+    font-size: 0.85em;
+    opacity: 0.7;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #quiz-{{ section.id }} .quiz-progress__fill { transition: none; }
+  }
+
+  #quiz-{{ section.id }} .quiz-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: {{ section.settings.text_alignment }};
+    margin-top: 16px;
+  }
+
+  @media (max-width: 768px) {
+    #quiz-{{ section.id }} .quiz-options {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    #quiz-{{ section.id }} .quiz-product-cards {
+      grid-template-columns: 1fr;
+    }
+  }
+{% endstyle %}
+
+<div
+  id="quiz-{{ section.id }}"
+  class="index-section"
+  data-section-id="{{ section.id }}"
+  data-section-type="quiz">
+  <div class="quiz-section__wrapper">
+    {%- if section.settings.image != blank -%}
+      <div class="quiz-section__bg">
+        {{ section.settings.image | image_url: width: 2400 | image_tag: loading: 'eager', class: 'quiz-section__bg-img' }}
+      </div>
+      <div class="quiz-section__overlay"></div>
+    {%- endif -%}
+
+    <div class="quiz-section__content">
+      <quiz-recommendation
+        data-products-to-show="{{ section.settings.products_to_show }}"
+        data-animation-style="{{ section.settings.animation_style }}"
+        data-matching-mode="{{ section.settings.matching_mode }}">
+        <div class="quiz-intro" data-quiz-intro>
+          {%- if section.settings.heading != blank -%}
+            <h2 class="quiz-heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.text != blank -%}
+            <div class="quiz-text rte">{{ section.settings.text }}</div>
+          {%- endif -%}
+          <button class="btn" data-quiz-start>{{ section.settings.start_button_label | default: 'Start Quiz' }}</button>
+        </div>
+
+        <div class="quiz-progress" data-quiz-progress{% unless section.settings.show_progress_bar %} style="display:none"{% endunless %}>
+          <div class="quiz-progress__bar">
+            <div class="quiz-progress__fill" data-quiz-progress-fill style="width:0%;background:{{ section.settings.progress_bar_color }}"></div>
+          </div>
+          <span class="quiz-progress__label" data-quiz-progress-label>1 / {{ section.blocks.size }}</span>
+        </div>
+
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign opt_1_handles = ''
+            assign opt_2_handles = ''
+            assign opt_3_handles = ''
+            assign opt_4_handles = ''
+
+            assign opt_1_tag = block.settings.option_1_tag | downcase
+            assign opt_2_tag = block.settings.option_2_tag | downcase
+            assign opt_3_tag = block.settings.option_3_tag | downcase
+            assign opt_4_tag = block.settings.option_4_tag | downcase
+
+            if opt_1_tag != blank or opt_2_tag != blank or opt_3_tag != blank or opt_4_tag != blank
+              paginate collections.all.products by 250
+                for product in collections.all.products
+                  assign tags_down = product.tags | join: ',' | downcase | split: ','
+
+                  if product.available
+                    if opt_1_tag != blank and tags_down contains opt_1_tag
+                      assign opt_1_handles = opt_1_handles | append: product.handle | append: ','
+                    endif
+                    if opt_2_tag != blank and tags_down contains opt_2_tag
+                      assign opt_2_handles = opt_2_handles | append: product.handle | append: ','
+                    endif
+                    if opt_3_tag != blank and tags_down contains opt_3_tag
+                      assign opt_3_handles = opt_3_handles | append: product.handle | append: ','
+                    endif
+                    if opt_4_tag != blank and tags_down contains opt_4_tag
+                      assign opt_4_handles = opt_4_handles | append: product.handle | append: ','
+                    endif
+                  endif
+                endfor
+              endpaginate
+            endif
+          -%}
+
+          <div class="quiz-question is-hidden" data-quiz-question data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+            {%- if block.settings.question != blank -%}
+              <h3 class="quiz-question__heading">{{ block.settings.question }}</h3>
+            {%- endif -%}
+            <div class="quiz-options">
+              {%- for i in (1..4) -%}
+                {%- capture option_key_tag -%}option_{{ i }}_tag{%- endcapture -%}
+                {%- capture option_key_text -%}option_{{ i }}{%- endcapture -%}
+                {%- capture option_key_image -%}option_{{ i }}_image{%- endcapture -%}
+                {%- liquid
+                  assign opt_tag = block.settings[option_key_tag]
+                  assign opt_text = block.settings[option_key_text]
+                  assign opt_image = block.settings[option_key_image]
+                  assign opt_handles = ''
+
+                  if opt_tag != blank
+                    case i
+                      when 1
+                        assign opt_handles = opt_1_handles
+                      when 2
+                        assign opt_handles = opt_2_handles
+                      when 3
+                        assign opt_handles = opt_3_handles
+                      when 4
+                        assign opt_handles = opt_4_handles
+                    endcase
+                  endif
+
+                  assign clean_handles = opt_handles | split: ',' | uniq | join: ','
+                -%}
+
+                {%- if opt_text != blank -%}
+                    <button
+                    class="quiz-option"
+                    data-quiz-option
+                    data-product-handles="{{ clean_handles }}"
+                    {%- capture weight_key -%}option_{{ i }}_weight{%- endcapture -%}
+                    data-weight="{{ block.settings[weight_key] }}"
+                    {% if forloop.last and forloop.parentloop.last %}data-last-question{% endif %}>
+                    {%- if opt_image != blank -%}
+                      <span class="quiz-option__image">
+                        {{ opt_image | image_url: width: 300 | image_tag: loading: 'lazy' }}
+                      </span>
+                    {%- endif -%}
+                    <span class="quiz-option__text">{{ opt_text }}</span>
+                  </button>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          </div>
+        {%- endfor -%}
+
+        <div class="quiz-results is-hidden" data-quiz-results>
+          {%- if section.settings.results_heading != blank -%}
+            <h3 class="quiz-results__heading">{{ section.settings.results_heading }}</h3>
+          {%- endif -%}
+          <div class="quiz-product-cards" data-quiz-cards>
+            {%- if settings.ph_motion_skeletons_enable -%}
+              <div class="ph-skeleton--container" data-skeleton="product-cards" hidden>
+                {%- render 'ph-skeleton-product-cards' -%}
+              </div>
+            {%- endif -%}
+            {%- for i in (1..section.settings.products_to_show) -%}
+              <div class="quiz-card-slot" data-quiz-card-slot="{{ forloop.index0 }}"></div>
+            {%- endfor -%}
+          </div>
+          {%- if section.settings.no_results_text != blank -%}
+            <div class="quiz-no-results is-hidden" data-quiz-no-results>
+              <p>{{ section.settings.no_results_text }}</p>
+            </div>
+          {%- endif -%}
+          <div class="quiz-actions">
+            <button class="btn btn--secondary" data-quiz-reset>{{ section.settings.reset_label | default: 'Start Over' }}</button>
+          </div>
+        </div>
+      </quiz-recommendation>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'quiz.js' | asset_url }}" type="module" defer></script>
+
+{% stylesheet %}
+.is-hidden {
+  display: none;
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Quiz",
+  "class": "index-section",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Intro"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Find Your Perfect Style"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Answer a few questions and we'll recommend products you'll love.</p>"
+    },
+    {
+      "type": "text",
+      "id": "start_button_label",
+      "label": "Start button label",
+      "default": "Start Quiz"
+    },
+    {
+      "type": "header",
+      "content": "Results"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "results_heading",
+      "label": "Results heading",
+      "default": "We think you'll love..."
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    },
+    {
+      "type": "text",
+      "id": "no_results_text",
+      "label": "No results text",
+      "default": "No products matched your selections. Try different answers!"
+    },
+    {
+      "type": "text",
+      "id": "reset_label",
+      "label": "Reset button label",
+      "default": "Start Over"
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Background image"
+    },
+    {
+      "type": "color",
+      "id": "image_overlay_color",
+      "label": "Overlay color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "label": "Overlay opacity",
+      "default": 30,
+      "unit": "%"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1c1d1d"
+    },
+    {
+      "type": "header",
+      "content": "Enhanced"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_progress_bar",
+      "label": "Show progress bar",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "progress_bar_color",
+      "label": "Progress bar color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "animation_style",
+      "label": "Animation style",
+      "default": "slide",
+      "options": [
+        { "value": "slide", "label": "Slide" },
+        { "value": "fade", "label": "Fade" },
+        { "value": "none", "label": "None" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "matching_mode",
+      "label": "Matching mode",
+      "default": "intersection",
+      "options": [
+        { "value": "intersection", "label": "Tag intersection (current)" },
+        { "value": "weighted-score", "label": "Weighted score" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "section_height",
+      "label": "Section height",
+      "default": "auto",
+      "options": [
+        { "value": "auto", "label": "Auto" },
+        { "value": "450px", "label": "450px" },
+        { "value": "550px", "label": "550px" },
+        { "value": "650px", "label": "650px" },
+        { "value": "100vh", "label": "Full screen" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "content_padding",
+      "label": "Content padding",
+      "min": 20,
+      "max": 80,
+      "step": 10,
+      "default": 40,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question text",
+          "default": "What are you looking for?"
+        },
+        {
+          "type": "header",
+          "content": "Option 1"
+        },
+        {
+          "type": "image_picker",
+          "id": "option_1_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "option_1",
+          "label": "Label",
+          "default": "Option 1"
+        },
+        {
+          "type": "text",
+          "id": "option_1_tag",
+          "label": "Product tag",
+          "info": "Products with this tag will be shown when this option is selected."
+        },
+        {
+          "type": "text",
+          "id": "option_1_weight",
+          "label": "Option 1 weight",
+          "default": "1",
+          "info": "Higher = more important"
+        },
+        {
+          "type": "header",
+          "content": "Option 2"
+        },
+        {
+          "type": "image_picker",
+          "id": "option_2_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "option_2",
+          "label": "Label",
+          "default": "Option 2"
+        },
+        {
+          "type": "text",
+          "id": "option_2_tag",
+          "label": "Product tag",
+          "info": "Products with this tag will be shown when this option is selected."
+        },
+        {
+          "type": "text",
+          "id": "option_2_weight",
+          "label": "Option 2 weight",
+          "default": "1",
+          "info": "Higher = more important"
+        },
+        {
+          "type": "header",
+          "content": "Option 3"
+        },
+        {
+          "type": "image_picker",
+          "id": "option_3_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "option_3",
+          "label": "Label",
+          "default": "Option 3"
+        },
+        {
+          "type": "text",
+          "id": "option_3_tag",
+          "label": "Product tag",
+          "info": "Products with this tag will be shown when this option is selected."
+        },
+        {
+          "type": "text",
+          "id": "option_3_weight",
+          "label": "Option 3 weight",
+          "default": "1",
+          "info": "Higher = more important"
+        },
+        {
+          "type": "header",
+          "content": "Option 4"
+        },
+        {
+          "type": "image_picker",
+          "id": "option_4_image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "option_4",
+          "label": "Label",
+          "default": "Option 4"
+        },
+        {
+          "type": "text",
+          "id": "option_4_tag",
+          "label": "Product tag",
+          "info": "Products with this tag will be shown when this option is selected."
+        },
+        {
+          "type": "text",
+          "id": "option_4_weight",
+          "label": "Option 4 weight",
+          "default": "1",
+          "info": "Higher = more important"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Quiz",
+      "blocks": [
+        {
+          "type": "question",
+          "settings": {
+            "question": "How would you describe your personal style?",
+            "option_1": "Minimal and modern",
+            "option_1_tag": "minimal",
+            "option_2": "Bold and expressive",
+            "option_2_tag": "bold",
+            "option_3": "Classic and timeless",
+            "option_3_tag": "classic",
+            "option_4": "Casual and relaxed",
+            "option_4_tag": "casual"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "What do you usually look for?",
+            "option_1": "Everyday essentials",
+            "option_1_tag": "essential",
+            "option_2": "Statement pieces",
+            "option_2_tag": "statement",
+            "option_3": "Seasonal trends",
+            "option_3_tag": "trending",
+            "option_4": "Comfort must-haves",
+            "option_4_tag": "comfort"
+          }
+        },
+        {
+          "type": "question",
+          "settings": {
+            "question": "Which colors speak to you?",
+            "option_1": "Neutrals",
+            "option_1_tag": "neutral",
+            "option_2": "Earth tones",
+            "option_2_tag": "earth",
+            "option_3": "Bold and bright",
+            "option_3_tag": "bright",
+            "option_4": "Soft and pastel",
+            "option_4_tag": "pastel"
+          }
+        }
+      ]
+    }
+  ],
+  "disabled_on": {
+    "groups": ["footer", "header", "custom.popups"]
+  }
+}
+{% endschema %}

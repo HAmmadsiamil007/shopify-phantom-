@@ -1,0 +1,410 @@
+================================================================================
+  OPENCODE GLOBAL SETUP GUIDE
+  How MCPs, Skills & Plugins Were Installed, Made Global & Verified
+================================================================================
+
+This document explains the COMPLETE setup — what was installed, how it was
+made global, and how it works as default in every project.
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+1.  The Global Config File
+2.  MCP Servers — Installation & Configuration
+3.  Skills — Installation & Global Setup
+4.  Plugins — Installation & Loading
+5.  How Everything Works as Global Default
+6.  Verification — Confirming Everything Works
+7.  Troubleshooting
+
+================================================================================
+1. THE GLOBAL CONFIG FILE
+================================================================================
+
+All configuration is in ONE file:
+
+  C:\Users\hamma\.config\opencode\opencode.jsonc
+
+This file is read by opencode on EVERY session start, regardless of which
+project folder you open. It contains THREE sections:
+
+  a) "plugin"  — Plugins to load (5 plugins)
+  b) "skills"  — Paths to scan for skills (2 paths)
+  c) "mcp"     — MCP servers to spawn (8 servers)
+
+  NOTE: There is NO project-level config needed. The global file is enough.
+  The file config/mcp-servers.json in this project is NOT used — it exists
+  for reference only. The GLOBAL config takes precedence.
+
+================================================================================
+2. MCP SERVERS — INSTALLATION & CONFIGURATION
+================================================================================
+
+All MCPs installed globally via npm or pip. All configured in opencode.jsonc.
+
+2a. context7 (Remote — no binary needed)
+  -----------------------------------------
+  Type: Remote (API-based)
+  URL: https://mcp.context7.com/mcp
+  Auth: API key in headers
+  Install: Nothing needed (service)
+  Global config:
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "enabled": true,
+      "headers": { "CONTEXT7_API_KEY": "ctx7sk-ebdf4ba0-..." }
+    }
+  Verification: Call context7_resolve-library-id → returns results
+
+2b. server-filesystem (Stdio)
+  -----------------------------------------
+  Package: @modelcontextprotocol/server-filesystem
+  Install: npm install -g @modelcontextprotocol/server-filesystem
+  Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\
+          @modelcontextprotocol\server-filesystem\dist\index.js
+  Allowed directories: uiux thmes, impulse to PHANTOM, .agents
+  Global config:
+    "server-filesystem": {
+      "type": "local",
+      "command": ["node", "path/to/index.js", "dir1", "dir2", "dir3"],
+      "enabled": true
+    }
+  Verification: Call server-filesystem tool → reads/writes files
+
+2c. playwright-mcp (Stdio)
+  -----------------------------------------
+  Package: @playwright/mcp
+  Install: npm install -g @playwright/mcp
+  Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\
+          @playwright\mcp\cli.js
+  Global config:
+    "playwright-mcp": {
+      "type": "local",
+      "command": ["node", "path/to/cli.js"],
+      "enabled": true
+    }
+  Verification: Call playwright-mcp tool → opens browser, navigates
+
+2d. mcp-git (Stdio)
+  -----------------------------------------
+  Package: mcp-git
+  Install: npm install -g mcp-git
+  Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\
+          mcp-git\dist\cli.js
+  PREREQUISITE: Git for Windows must be installed and in PATH
+    Download from: https://git-scm.com/download/win
+  Global config:
+    "mcp-git": {
+      "type": "local",
+      "command": ["node", "path/to/cli.js"],
+      "enabled": true
+    }
+  Verification: mcp-git_git_status → shows repo status
+  Note: MCP binary connects but git commands fail if git not in PATH
+
+2e. shopify-dev-mcp (Stdio)
+  -----------------------------------------
+  Package: @shopify/dev-mcp
+  Install: npm install -g @shopify/dev-mcp
+  Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\
+          @shopify\dev-mcp\dist\index.js
+  Global config:
+    "shopify-dev-mcp": {
+      "type": "local",
+      "command": ["node", "path/to/index.js"],
+      "enabled": true
+    }
+  Verification: shopify-dev-mcp_learn_shopify_api → returns conversation ID
+
+2f. serena (Stdio)
+  -----------------------------------------
+  Package: serena-agent
+  Install: pip install serena-agent
+    OR: uv tool install serena-agent
+  Binary: C:\Users\hamma\AppData\Local\Python\pythoncore-3.14-64\
+          Scripts\serena.exe
+  Global config:
+    "serena": {
+      "type": "local",
+      "command": ["path/to/serena.exe", "start-mcp-server", "--project-from-cwd"],
+      "enabled": true
+    }
+  Per-project activation (one-time):
+    serena_activate_project(project: "path/to/project")
+  Verification: Call serena_get_current_config → returns config
+             or: serena_find_symbol → returns symbol info
+
+2g. sequential-thinking (Stdio)
+  -----------------------------------------
+  Package: @modelcontextprotocol/server-sequential-thinking
+  Install: No install needed — runs via npx (auto-fetched)
+  Command: npx -y @modelcontextprotocol/server-sequential-thinking
+  Global config:
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["cmd", "/c", "npx", "-y",
+                  "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": true
+    }
+  Verification: sequential-thinking → returns thought processed
+
+2h. open-design-mcp (Stdio)
+  -----------------------------------------
+  Package: open-design-mcp (MCP bridge)
+           @spec-ade/open-design (daemon)
+  Install: npm install -g open-design-mcp
+           npm install -g @spec-ade/open-design
+  Binary (MCP): C:\Users\hamma\AppData\Roaming\npm\node_modules\
+                open-design-mcp\dist\src\server.js
+  Daemon command: od
+  Global config:
+    "open-design-mcp": {
+      "type": "local",
+      "command": ["node", "path/to/server.js"],
+      "enabled": true,
+      "environment": { "OD_DAEMON_URL": "http://127.0.0.1:7456" }
+    }
+  Start daemon before using:
+    Start-Job -Name od-daemon -ScriptBlock { od }
+    OR just: od
+  Verification: od_list_projects → lists projects (if daemon running)
+             or: od_get_project → returns project info
+
+2i. NOT MCP SERVERS (for reference)
+  -----------------------------------------
+  headroom/max:
+    - Package: headroom (pip install headroom)
+    - CLI binary: max.exe (NOT headroom.exe)
+    - This is a STANDALONE CLI AGENT, NOT an MCP server
+    - Run as: max (interactive console required)
+    - Does not have an MCP mode
+
+  stitch-mcp:
+    - Skipped by user choice
+    - Needs GOOGLE_CLOUD_PROJECT env var
+
+  auto-browser:
+    - Skipped — needs Docker backend at http://127.0.0.1:8000
+
+================================================================================
+3. SKILLS — INSTALLATION & GLOBAL SETUP
+================================================================================
+
+Skills are NOT npm packages. They are directories containing a SKILL.md file
+that provides instructions to the AI agent.
+
+3a. Installation
+  -----------------------------------------
+  Skills are placed in:
+    GLOBAL:  C:\Users\hamma\.agents\skills\  (119 skills)
+    PROJECT: <project>\.agents\skills\       (optional per-project copy)
+
+  Skills come from various sources:
+  - anthopic/skills (Claude API, PDF, DOCX, etc.)
+  - vercel-labs/agent-skills (React, design, writing)
+  - vercel-labs/skills (skill discovery)
+  - Custom/manual installs (Shopify skills, Stitch skills, etc.)
+
+  Installation command (if adding new skills):
+    npx skills add <source> --skill <name> -y
+
+3b. How Skills are Made Global
+  -----------------------------------------
+  In opencode.jsonc:
+    "skills": {
+      "paths": [
+        "~/.agents/skills",     // Global — shared across ALL projects
+        ".agents/skills"         // Project-specific override
+      ]
+    }
+
+  The first path (~/.agents/skills/) is the GLOBAL one. Any skill folder
+  placed here is automatically available in every project.
+
+  The second path (.agents/skills/) is project-relative. If a project has
+  its own skills folder, those are loaded too (in addition to global).
+
+3c. Skill Loading
+  -----------------------------------------
+  Each project also has .opencode/skill-loader-config.json which lists
+  all 119 skills under "alwaysLoad". This tells the skill tool which
+  skills to make available.
+
+  To load a skill in-session:
+    skill load <skill-name>
+
+3d. Adding a New Skill (Making It Global)
+  -----------------------------------------
+  1. Create directory: mkdir ~\.agents\skills\my-skill
+  2. Create SKILL.md:  write instructions in markdown
+  3. Done! — It's now available in ALL future sessions.
+     (No config changes needed — opencode scans the paths automatically)
+
+  Optional: Add to .opencode/skill-loader-config.json if you want it in
+  the alwaysLoad list.
+
+================================================================================
+4. PLUGINS — INSTALLATION & LOADING
+================================================================================
+
+Plugins are npm packages that extend opencode's capabilities.
+
+4a. Installed Plugins
+  -----------------------------------------
+  All plugins installed in:
+    C:\Users\hamma\.config\opencode\node_modules\
+
+  Plugin installation directory:
+    cd C:\Users\hamma\.config\opencode
+
+  @opencode-ai/plugin v1.17.13 — Core plugin system
+    npm install @opencode-ai/plugin --prefix ~\.config\opencode
+
+  opencode-mem (latest) — Persistent memory with vector DB + auto-capture
+    npm install opencode-mem --prefix ~\.config\opencode
+
+  opencode-quota (latest) — Usage quota tracking
+    npm install opencode-quota --prefix ~\.config\opencode
+
+  opencode-snippets (latest) — Code snippet management
+    npm install opencode-snippets --prefix ~\.config\opencode
+
+  superpowers v6.1.1 — Skills runtime + workflow tools (obra/superpowers)
+    npm install https://github.com/obra/superpowers/tarball/main `
+      --prefix ~\.config\opencode
+    Note: Installed via tarball URL (bypasses git dependency)
+
+4b. How Plugins Are Made Global
+  -----------------------------------------
+  In opencode.jsonc:
+    "plugin": [
+      "~/.config/opencode/node_modules/@opencode-ai/plugin",
+      "~/.config/opencode/node_modules/opencode-mem",
+      "~/.config/opencode/node_modules/opencode-quota",
+      "~/.config/opencode/node_modules/opencode-snippets",
+      "~/.config/opencode/node_modules/superpowers"
+    ]
+
+  Each entry is a path to the installed npm package. opencode loads them
+  at startup in order.
+
+4c. Adding a New Plugin (Making It Global)
+  -----------------------------------------
+  1. Install: npm install <package> --prefix ~\.config\opencode
+  2. Add to "plugin" array in opencode.jsonc
+  3. Restart opencode — plugin loads automatically
+
+================================================================================
+5. HOW EVERYTHING WORKS AS GLOBAL DEFAULT
+================================================================================
+
+The magic is in ONE file: C:\Users\hamma\.config\opencode\opencode.jsonc
+
+When you open ANY folder in opencode:
+  1. opencode reads the global config file
+  2. It spawns all 8 MCP servers defined in "mcp" section
+  3. It loads all 5 plugins from the "plugin" array
+  4. It scans ~/.agents/skills/ and .agents/skills/ for skills
+  5. All skills, MCP tools, and plugin features become available
+
+There is NO need to:
+  - Copy config files between projects
+  - Re-install MCP servers per project
+  - Re-install plugins per project
+  - Set up skills per project
+
+One-time setup → Works everywhere.
+
+================================================================================
+6. VERIFICATION — CONFIRMING EVERYTHING WORKS
+================================================================================
+
+You can verify everything is working by checking:
+
+6a. MCP Servers (tools available = connected)
+  -----------------------------------------
+  context7:       Call context7_query-docs → returns docs
+  server-filesystem: Call server-filesystem_read_file → reads file
+  playwright-mcp: Call browser_navigate → opens browser
+  mcp-git:        Call mcp-git_git_status → shows repo status
+  shopify-dev-mcp: Call learn_shopify_api → gets conversation ID
+  serena:         Call serena_get_current_config → shows config
+  sequential-thinking: Call sequentialthinking → processes thought
+  open-design-mcp: Call od_list_projects → lists projects (daemon needed)
+
+6b. Skills
+  -----------------------------------------
+  List all skills: skill load (tab to see options)
+  Load a skill:    skill load <name>
+  Every skill has: ~/.agents/skills/<name>/SKILL.md
+
+6c. Plugins
+  -----------------------------------------
+  Check installed: Get-ChildItem ~\.config\opencode\node_modules\
+                   (should see 5 plugin directories)
+  Verify in config: Get-Content ~\.config\opencode\opencode.jsonc
+                    (check "plugin" array has all 5 entries)
+
+6d. Global Config
+  -----------------------------------------
+  Get-Content -LiteralPath "C:\Users\hamma\.config\opencode\opencode.jsonc"
+  
+  Should show:
+  - plugin: 5 entries
+  - skills.paths: ["~/.agents/skills", ".agents/skills"]
+  - mcp: 8 entries (context7, shopify-dev-mcp, serena, sequential-thinking,
+          open-design-mcp, server-filesystem, playwright-mcp, mcp-git)
+
+================================================================================
+7. TROUBLESHOOTING
+================================================================================
+
+7a. MCP not connecting
+  - Check opencode.jsonc has the server in "mcp" with "enabled": true
+  - Check the binary path exists (npm root -g to find global node_modules)
+  - Try running the command manually in terminal
+  - For open-design-mcp: start the daemon first (od command)
+
+7b. Skill not loading
+  - Check ~/.agents/skills/<name>/SKILL.md exists
+  - Check .opencode/skill-loader-config.json has the skill in alwaysLoad
+  - Try: skill load <name>
+
+7c. Plugin not loading
+  - Check the directory exists at the path in "plugin" array
+  - Check opencode.jsonc syntax (valid JSON)
+  - Try: npm install <plugin> --prefix ~\.config\opencode
+
+7d. mcp-git failing
+  - Install Git for Windows from git-scm.com
+  - Add to PATH: $env:Path += ";C:\Program Files\Git\bin"
+  - Restart opencode
+
+7e. open-design-mcp failing
+  - Start daemon: Start-Job -Name od-daemon -ScriptBlock { od }
+  - Check OD_DAEMON_URL matches: http://127.0.0.1:7456
+
+7f. serena not activated
+  - Call: serena_activate_project(project: "path/to/project")
+  - Or: serena project init (from terminal)
+
+================================================================================
+SUMMARY
+================================================================================
+
+All components are installed globally and work as defaults:
+
+  Component     Count     Status     How It's Global
+  -----------   -----     ------     ------------------------------------
+  MCP Servers   8/8       WORKING    Defined in global opencode.jsonc
+  Skills        119/119   LOADABLE   Path in global opencode.jsonc
+  Plugins       5/5       LOADED     Paths in global opencode.jsonc
+  Config        1 file    ACTIVE     C:\Users\hamma\.config\opencode\
+                                     opencode.jsonc
+
+Open ANY folder → Everything is already there. No setup needed.
+
+================================================================================
+END OF SETUP GUIDE
+================================================================================

@@ -1,0 +1,384 @@
+{% doc %}
+  Renders a drawer-overlay component.
+  @param {string} slot - Content to render within the drawer
+  @param {string} [id] - The id of the drawer
+  @param {string} [label] - The label of the drawer
+  @param {string} [placement] - The placement of the drawer ('start' or 'end'), default: 'start'
+  @param {string} [gutter] - ('none'|'2xs'|'xs'|'sm'|'md'|'lg'|'xl') - Space between the drawer and the edge of the screen, default: 'lg'
+  @param {string} [size] - The CSS max-width of the drawer, default: 480px
+  @param {string} [style] - Inline styles to apply
+  To open the drawer, trigger a click event on any element with data-open-drawer="{{ id }}"
+  @example
+  {% render 'drawer-overlay', slot: blocks %}
+  {% enddoc %}
+
+  {% liquid
+  assign id = id | default: 'slide-drawer'
+  assign label = label | default: ''
+  assign slot = slot | default: ''
+  assign placement = placement | default: 'start'
+  assign gutter = gutter | default: 'lg'
+  assign size = size | default: '480px'
+  assign style = style | default: ''
+
+  assign style = style | append: '--slide-drawer-gutter: var(--gap-size-' | append: gutter | append: ');'
+  assign style = style | append: '--slide-drawer-size: ' | append: size | append: ';'
+%}
+
+<slide-drawer 
+  id="{{ id }}"
+  class="
+    overlay-drawer
+    slide-drawer--{{ placement }}
+  "
+  style="{{ style }}"
+  open="false"
+>
+  <div class="slide-drawer__inner">
+    <div class="slide-drawer__header">
+      {% if label != blank %}
+        <div class="slide-drawer__label">
+          {{ label }}
+        </div>
+      {% endif %}
+
+      <div class="slide-drawer__close-button">
+        {% render 'ui-button',
+          icon: 'close',
+          inline: true,
+          transparent: true,
+          inverted: true,
+          type: 'button',
+          attributes: '
+            data-drawer-close-button
+            aria-label="Close"
+          '
+        %}
+      </div>
+    </div>
+    {{ slot }}
+  </div>
+</slide-drawer>
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+:root {
+  --slide-drawer-size: 480px;
+  --slide-drawer-gutter: var(--gap-size-none); /* better name? */
+  --slide-drawer-label-margin-bottom: var(--size-4);
+
+  --slide-drawer-padding-inline: var(--size-4);
+  --slide-drawer-padding-inline--xs: initial;
+  --slide-drawer-padding-inline--sm: initial;
+  --slide-drawer-padding-inline--md: initial;
+  --slide-drawer-padding-inline--lg: initial;
+  --slide-drawer-padding-inline--xl: initial;
+
+  --slide-drawer-padding-block: var(--size-8);
+  --slide-drawer-padding-block--xs: initial;
+  --slide-drawer-padding-block--sm: initial;
+  --slide-drawer-padding-block--md: initial;
+  --slide-drawer-padding-block--lg: initial;
+  --slide-drawer-padding-block--xl: initial;
+
+  --slide-drawer-background: initial;
+  --slide-drawer-overlay-color: rgba(0, 0, 0, 0.5);
+
+  --slide-drawer-z-index: 9999;
+  --slide-drawer-transition-duration: 0.3s;
+  --slide-drawer-transition-timing-function: ease-in-out;
+}
+
+/* Scroll lock when drawer is open */
+body:has(.slide-drawer[open='true']) {
+  overflow: hidden;
+}
+
+.slide-drawer {
+  --_width: calc(100% - var(--slide-drawer-gutter));
+  --_max-width: var(--slide-drawer-size);
+
+  --_padding-inline--xs: var(--slide-drawer-padding-inline--xs, var(--slide-drawer-padding-inline));
+  --_padding-inline--sm: var(--slide-drawer-padding-inline--sm, var(--_padding-inline--xs));
+  --_padding-inline--md: var(--slide-drawer-padding-inline--md, var(--_padding-inline--sm));
+  --_padding-inline--lg: var(--slide-drawer-padding-inline--lg, var(--_padding-inline--md));
+  --_padding-inline--xl: var(--slide-drawer-padding-inline--xl, var(--_padding-inline--lg));
+  --_padding-inline: var(--_padding-inline--xs);
+
+  --_padding-block--xs: var(--slide-drawer-padding-block--xs, var(--slide-drawer-padding-block));
+  --_padding-block--sm: var(--slide-drawer-padding-block--sm, var(--_padding-block--xs));
+  --_padding-block--md: var(--slide-drawer-padding-block--md, var(--_padding-block--sm));
+  --_padding-block--lg: var(--slide-drawer-padding-block--lg, var(--_padding-block--md));
+  --_padding-block--xl: var(--slide-drawer-padding-block--xl, var(--_padding-block--lg));
+  --_padding-block: var(--_padding-block--xs);
+
+  --_background: var(--slide-drawer-background, var(--color-secondary, #fff));
+
+  display: block;
+  position: fixed;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  transition-property: background-color;
+  transition-duration: var(--slide-drawer-transition-duration);
+  transition-timing-function: var(--slide-drawer-transition-timing-function);
+  cursor: pointer;
+  z-index: var(--slide-drawer-z-index);
+
+  &[open='false'] {
+    pointer-events: none;
+  }
+
+  &[open='true'] {
+    background-color: var(--slide-drawer-overlay-color);
+  }
+}
+
+.slide-drawer__inner {
+  background: var(--_background);
+  cursor: initial;
+  position: absolute;
+  width: var(--_width);
+  max-width: var(--_max-width);
+  top: 0;
+  transition-property: transform;
+  transition-duration: var(--slide-drawer-transition-duration);
+  transition-timing-function: var(--slide-drawer-transition-timing-function);
+  height: 100%;
+  overflow-y: auto;
+  padding-inline: var(--_padding-inline);
+  padding-block: var(--_padding-block);
+
+  .slide-drawer--start & {
+    left: max(calc(-1 * var(--_width)), calc(-1 * var(--_max-width)));
+  }
+
+  .slide-drawer--start[open='true'] & {
+    transform: translateX(100%);
+  }
+
+  .slide-drawer--end & {
+    right: max(calc(-1 * var(--_width)), calc(-1 * var(--_max-width)));
+  }
+
+  .slide-drawer--end[open='true'] & {
+    transform: translateX(-100%);
+  }
+}
+
+.slide-drawer__header {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-block-end: var(--slide-drawer-label-margin-bottom);
+
+  &:has(.slide-drawer__label) {
+    justify-content: space-between;
+  }
+}
+
+.slide-drawer__close-button {
+  line-height: 0;
+}
+{% endstylesheet %}
+
+{% style %}
+@media ({% render 'theme-breakpoint', size: 'sm' %}) {
+  .slide-drawer {
+    --_padding-inline: var(--_padding-inline--sm);
+    --_padding-block: var(--_padding-block--sm);
+  }
+}
+
+@media ({% render 'theme-breakpoint', size: 'md' %}) {
+  .slide-drawer {
+    --_padding-inline: var(--_padding-inline--md);
+    --_padding-block: var(--_padding-block--md);
+  }
+}
+
+@media ({% render 'theme-breakpoint', size: 'lg' %}) {
+  .slide-drawer {
+    --_padding-inline: var(--_padding-inline--lg);
+    --_padding-block: var(--_padding-block--lg);
+  }
+}
+
+@media ({% render 'theme-breakpoint', size: 'xl' %}) {
+  .slide-drawer {
+    --_padding-inline: var(--_padding-inline--xl);
+    --_padding-block: var(--_padding-block--xl);
+  }
+}
+{% endstyle %}
+
+{% javascript %}
+  class OverlayDrawer extends HTMLElement {
+    constructor() {
+      super();
+      
+      
+      
+      // Store arrow functions to ensure same reference for add/remove
+    }
+
+    connectedCallback() {
+      this.closeButton = null;
+      this.triggers = null;
+      this.previouslyFocused = document.activeElement;
+      this.trapFocusHandlers = {};
+      this.abortController = new AbortController();
+      this.closeButton = this.querySelector('[data-drawer-close-button]');
+      this.triggers = document.querySelectorAll(
+        `[data-open-drawer="${this.id}"]`
+      );
+
+      const signal = this.abortController.signal;
+      
+      this.moveToBody();
+
+      this.closeButton.addEventListener('click', () => this.close(), { signal });
+      this.triggers.forEach((trigger) => {
+        trigger.addEventListener('click', (event) => {
+          event.preventDefault();
+          this.open();
+        }, { signal });
+      });
+      document.addEventListener('keydown', (event) => this.handleKeydown(event), { signal });
+      this.addEventListener('click', (event) => this.handleOverlayClick(event), { signal });
+    }
+
+    disconnectedCallback() {
+      this.abortController.abort();
+    }
+
+    open() {
+      this.previouslyFocused = document.activeElement;
+      
+      this.setAttribute('open', 'true');
+      this.trapFocus(this);
+    }
+
+    close() {
+      this.setAttribute('open', 'false');
+      this.removeTrapFocus(this.previouslyFocused);
+    }
+
+    moveToBody() {
+      if (this.parentNode === document.body) return;
+      
+      // Store the original parent and next sibling for potential restoration
+      this.originalParent = this.parentNode;
+      this.originalNextSibling = this.nextSibling;
+      
+      // Move the element to the body
+      document.body.appendChild(this);
+    }
+
+    handleOverlayClick(event) {
+      if (event.target === this) this.close();
+    }
+
+    handleKeydown(event) {
+      if (event.key === 'Escape' && this.getAttribute('open') === 'true') {
+        this.close();
+      }
+    }
+
+    removeTrapFocus(elementToFocus = null) {
+      if (this.trapFocusAbortController) {
+        this.trapFocusAbortController.abort();
+        this.trapFocusAbortController = null;
+      }
+
+      if (elementToFocus) {
+        try {
+          elementToFocus.focus({ preventScroll: true })
+        } catch (e) {
+          elementToFocus.focus()
+        }
+      }
+    }
+
+    forceFocus(element, options = {}) {
+      let savedTabIndex = element.tabIndex
+
+      element.tabIndex = -1
+      element.dataset.tabIndex = savedTabIndex
+      element.focus()
+      if (typeof options.className !== 'undefined') {
+        element.classList.add(options.className)
+      }
+      element.addEventListener('blur', callback)
+
+      function callback(event) {
+        event.target.removeEventListener(event.type, callback)
+
+        element.tabIndex = savedTabIndex
+        delete element.dataset.tabIndex
+        if (typeof options.className !== 'undefined') {
+          element.classList.remove(options.className)
+        }
+      }
+    }
+
+    focusable(container) {
+      return Array.from(
+        container.querySelectorAll(
+          "summary, a[href], button:enabled, [tabindex]:not([tabindex^='-']), [draggable], area, input:not([type=hidden]):enabled, select:enabled, textarea:enabled, object, iframe"
+        )
+      )
+    }
+
+    trapFocus(container, options = {}) {
+      let elements = this.focusable(container)
+      let elementToFocus = options.elementToFocus || container
+      let first = elements[0]
+      let last = elements[elements.length - 1]
+
+      this.removeTrapFocus()
+
+      // Create new AbortController for focus trap events
+      this.trapFocusAbortController = new AbortController();
+      const signal = this.trapFocusAbortController.signal;
+
+      this.trapFocusHandlers.focusin = function (event) {
+        if (container !== event.target && !container.contains(event.target)) {
+          this.forceFocus(first || container, options)
+        }
+
+        if (event.target !== container && event.target !== last && event.target !== first) return
+        document.addEventListener('keydown', this.trapFocusHandlers.keydown, { signal })
+      }.bind(this)
+
+      this.trapFocusHandlers.focusout = function () {
+        document.removeEventListener('keydown', this.trapFocusHandlers.keydown)
+      }.bind(this)
+
+      this.trapFocusHandlers.keydown = function (event) {
+        if (event.keyCode !== 9) return // If not TAB key
+
+        // On the last focusable element and tab forward, focus the first element.
+          if (event.target === last && !event.shiftKey) {
+        event.preventDefault()
+        this.forceFocus(first || container, options)
+      }
+
+        //  On the first focusable element and tab backward, focus the last element.
+          if ((event.target === container || event.target === first) && event.shiftKey) {
+        event.preventDefault()
+        this.forceFocus(last || container, options)
+      }
+      }.bind(this)
+
+      document.addEventListener('focusout', this.trapFocusHandlers.focusout, { signal })
+      document.addEventListener('focusin', this.trapFocusHandlers.focusin, { signal })
+
+      this.forceFocus(elementToFocus, options)
+    }
+  }
+
+  customElements.define('slide-drawer', OverlayDrawer);
+{% endjavascript %}

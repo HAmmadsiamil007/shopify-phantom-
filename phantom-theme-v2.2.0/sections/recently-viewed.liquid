@@ -1,0 +1,106 @@
+{%- liquid
+  assign row_of = section.settings.recent_count
+
+  capture grid_view
+    render 'products_per_row', products_per_row: row_of, style: 'fractions'
+  endcapture
+
+  # On smaller screen sizes, 39vw is used for grid items in the CSS
+  capture sizes
+    render 'sizes-explicit', size_variable: grid_view, fallback: '39vw'
+  endcapture
+-%}
+
+<div
+  data-subsection
+  data-section-id="{{ section.id }}"
+  data-section-type="recently-viewed"
+  data-product-handle="{{ product.handle }}"
+  data-recent-count="{{ section.settings.recent_count }}"
+  data-grid-item-class="{{ grid_view }}"
+  data-row-of="{{ row_of }}"
+  data-image-sizes="{{ sizes }}"
+>
+  <hr class="hr--large">
+  <div class="index-section index-section--small">
+    <div class="page-width">
+      <header class="section-header">
+        <h3 class="section-header__title">{{ 'products.general.recent_products' | t }}</h3>
+      </header>
+    </div>
+
+    <div class="page-width page-width--flush-small">
+      <div class="grid-overflow-wrapper">
+        <div id="RecentlyViewed-{{ section.id }}" class="grid grid--uniform" data-aos="{% if section.settings.entrance_animation and section.settings.entrance_animation != 'existing' %}{{ section.settings.entrance_animation }}{% else %}overflow__animation{% endif %}">
+          {%- if settings.ph_motion_skeletons_enable -%}
+            {%- for i in (1..section.settings.recent_count) -%}
+              <div class="grid__item {{ grid_view }}">
+                {%- render 'ph-skeleton-product' -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.recently-viewed.name",
+  "settings": [
+      {
+        "type": "select",
+        "id": "entrance_animation",
+        "label": "t:sections.common.settings.entrance_animation.label",
+        "default": "ph-fade-up",
+        "options": [
+          {
+            "value": "existing",
+            "label": "t:sections.common.settings.entrance_animation.options.existing.label"
+          },
+          {
+            "value": "ph-fade-up",
+            "label": "ph-fade-up"
+          },
+          {
+            "value": "ph-scale-in",
+            "label": "ph-scale-in"
+          },
+          {
+            "value": "ph-blur-in",
+            "label": "ph-blur-in"
+          },
+          {
+            "value": "ph-slide-left",
+            "label": "ph-slide-left"
+          },
+          {
+            "value": "ph-slide-right",
+            "label": "ph-slide-right"
+          },
+          {
+            "value": "ph-rotate-in",
+            "label": "ph-rotate-in"
+          }
+        ]
+      },
+{
+      "type": "paragraph",
+      "content": "t:sections.recently-viewed.settings.content"
+    },
+    {
+      "type": "range",
+      "id": "recent_count",
+      "label": "t:sections.recently-viewed.settings.recent_count.label",
+      "default": 5,
+      "min": 2,
+      "max": 10,
+      "step": 1
+    }
+  ],
+  "disabled_on": {
+    "groups": ["footer", "header", "custom.popups"]
+  }
+}
+{% endschema %}

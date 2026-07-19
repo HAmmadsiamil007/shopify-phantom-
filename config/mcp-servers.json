@@ -1,0 +1,53 @@
+{
+  "context7": {
+    "type": "remote",
+    "url": "https://mcp.context7.com/mcp",
+    "enabled": true,
+    "headers": {
+      "CONTEXT7_API_KEY": "ctx7sk-ebdf4ba0-c4c8-4b40-a5c1-7b475929ab7a"
+    }
+  },
+  "shopify-dev-mcp": {
+    "type": "local",
+    "command": ["node", "__NODE_DIR__/node_modules/@shopify/dev-mcp/dist/index.js"],
+    "enabled": true
+  },
+  "serena": {
+    "type": "local",
+    "command": ["serena", "start-mcp-server", "--project-from-cwd"],
+    "enabled": true
+  },
+  "sequential-thinking": {
+    "type": "local",
+    "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+    "enabled": true
+  },
+  "open-design-mcp": {
+    "type": "local",
+    "command": ["node", "__NODE_DIR__/node_modules/open-design-mcp/dist/src/server.js"],
+    "enabled": true,
+    "environment": {
+      "OD_DAEMON_URL": "http://127.0.0.1:7456"
+    }
+  },
+  "headroom": {
+    "type": "local",
+    "command": ["headroom", "mcp", "serve"],
+    "enabled": true
+  },
+  "server-filesystem": {
+    "type": "local",
+    "command": ["node", "__NODE_DIR__/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js", "."],
+    "enabled": true
+  },
+  "playwright-mcp": {
+    "type": "local",
+    "command": ["node", "__NODE_DIR__/node_modules/@playwright/mcp/cli.js"],
+    "enabled": true
+  },
+  "mcp-git": {
+    "type": "local",
+    "command": ["node", "__NODE_DIR__/node_modules/mcp-git/dist/cli.js"],
+    "enabled": true
+  }
+}

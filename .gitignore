@@ -1,0 +1,8 @@
+node_modules/
+.env
+*.log
+.agents/
+.opencode/
+.playwright-mcp/
+.superpowers/
+.serena/

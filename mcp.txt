@@ -1,0 +1,176 @@
+================================================================================
+  MCP INVENTORY — COMPLETE STATUS REPORT
+  All MCPs, Skills & Plugins: Working | Global | Default
+================================================================================
+
+This file is the authoritative reference for all tools in this project.
+Everything is configured GLOBALLY — works in ANY opencode project folder.
+
+================================================================================
+1. MCP SERVERS — 8/8 Connected & Working
+================================================================================
+
+All MCPs defined in: C:\Users\hamma\.config\opencode\opencode.jsonc (GLOBAL)
+
++---------------------+----------+---------+----------------------------------+
+| MCP Server          | Protocol | Status  | Notes                            |
++---------------------+----------+---------+----------------------------------+
+| context7            | remote   | WORKING | Library/framework docs lookup    |
+| server-filesystem   | stdio    | WORKING | File read/write/list access      |
+| playwright-mcp      | stdio    | WORKING | Browser automation & E2E tests   |
+| mcp-git             | stdio    | WORKING | Git operations (needs git CLI)   |
+| shopify-dev-mcp     | stdio    | WORKING | Shopify dev tools + validation    |
+| serena              | stdio    | WORKING | Code queries + editing + memory   |
+| sequential-thinking | stdio    | WORKING | Multi-step reasoning              |
+| open-design-mcp     | stdio    | WORKING | Design tokens (needs daemon)      |
++---------------------+----------+---------+----------------------------------+
+
+HOW EACH MCP WAS INSTALLED & CONFIGURED:
+
+1. context7
+   - Type: Remote (no install needed)
+   - Config: API key in opencode.jsonc headers
+   - Installed: N/A (service)
+   - Global: Yes
+
+2. server-filesystem
+   - Install: npm install -g @modelcontextprotocol/server-filesystem
+   - Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\...\dist\index.js
+   - Allowed dirs: uiux thmes, impulse to PHANTOM, .agents
+   - Global: Yes (in opencode.jsonc)
+
+3. playwright-mcp
+   - Install: npm install -g @playwright/mcp
+   - Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\@playwright\mcp\cli.js
+   - Global: Yes
+
+4. mcp-git
+   - Install: npm install -g mcp-git
+   - Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\mcp-git\dist\cli.js
+   - Note: Requires git CLI installed in PATH for operations
+   - Global: Yes
+
+5. shopify-dev-mcp
+   - Install: npm install -g @shopify/dev-mcp
+   - Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\@shopify\dev-mcp\dist\index.js
+   - Global: Yes
+
+6. serena
+   - Install: pip install serena-agent (or uv tool install serena-agent)
+   - Binary: C:\Users\hamma\AppData\Local\Python\pythoncore-3.14-64\Scripts\serena.exe
+   - Project activation: call serena_activate_project() per project
+   - Global: Yes
+
+7. sequential-thinking
+   - Install: No install — runs via npx
+   - Command: npx -y @modelcontextprotocol/server-sequential-thinking
+   - Global: Yes
+
+8. open-design-mcp
+   - Install: npm install -g open-design-mcp
+   - Binary: C:\Users\hamma\AppData\Roaming\npm\node_modules\open-design-mcp\dist\src\server.js
+   - Daemon: npm install -g @spec-ade/open-design (od command)
+   - Start daemon: Start-Job -Name od-daemon -ScriptBlock { od }
+   - Global: Yes
+
+NOT MCPs (for reference):
+- headroom/max: Standalone CLI agent, NOT an MCP server. pip install headroom.
+- stitch-mcp: Skipped (needs GOOGLE_CLOUD_PROJECT env var)
+- auto-browser: Skipped (needs Docker backend)
+
+================================================================================
+2. SKILLS — 119/119 Installed & Loadable
+================================================================================
+
+All skills live in: C:\Users\hamma\.agents\skills\ (GLOBAL path)
+Configured in opencode.jsonc: "skills.paths": ["~/.agents/skills", ".agents/skills"]
+
+Every skill has a SKILL.md file. Skills are loaded on demand via the skill tool.
+All 119 skills are listed in .opencode/skill-loader-config.json as alwaysLoad.
+
+HOW SKILLS WERE INSTALLED:
+- Skills are file-directory-based: each skill = a folder with SKILL.md
+- Cloned/copied from various sources (anthropic/skills, vercel-labs, etc.)
+- Global path ~/.agents/skills/ is shared across ALL projects
+- Project path .agents/skills/ is a per-project copy/override
+
+No npm install needed for skills — they're just markdown files with instructions.
+
+================================================================================
+3. PLUGINS — 5/5 Installed & Loaded
+================================================================================
+
+All plugins in: C:\Users\hamma\.config\opencode\node_modules\ (GLOBAL)
+Configured in: opencode.jsonc "plugin" array
+
++---------------------+---------+----------------------------------------------+
+| Plugin              | Version | Install Command                              |
++---------------------+---------+----------------------------------------------+
+| @opencode-ai/plugin | 1.17.13 | npm install @opencode-ai/plugin              |
+| opencode-mem        | latest  | npm install opencode-mem                     |
+| opencode-quota      | latest  | npm install opencode-quota                   |
+| opencode-snippets   | latest  | npm install opencode-snippets                |
+| superpowers (obra)  | 6.1.1   | npm install https://github.com/obra/         |
+|                     |         |   superpowers/tarball/main                   |
++---------------------+---------+----------------------------------------------+
+
+HOW PLUGINS WERE INSTALLED:
+- cd ~\.config\opencode
+- npm install <package-name> --prefix ~\.config\opencode
+- Then add to "plugin" array in opencode.jsonc
+- All loaded automatically every session
+
+================================================================================
+4. GLOBAL CONFIGURATION SUMMARY
+================================================================================
+
+Config file: C:\Users\hamma\.config\opencode\opencode.jsonc
+This file applies to EVERY project folder opened with opencode.
+
+What's in it:
+- plugin: [5 plugins loaded every session]
+- skills.paths: [~/.agents/skills, .agents/skills] — all skills available
+- mcp: {8 servers auto-started every session}
+
+When you open a NEW folder in opencode:
+1. opencode reads global opencode.jsonc
+2. All 5 plugins load automatically
+3. All 8 MCP servers auto-start
+4. All 119 skills in ~/.agents/skills/ become available
+5. Skills in project's .agents/skills/ are also loaded if present
+
+No config copying needed. No re-installation needed. It just works.
+
+================================================================================
+5. MCP RUNTIME NOTES
+================================================================================
+
+open-design-mcp daemon (start before using):
+  Start-Job -Name od-daemon -ScriptBlock { od }
+
+serena project activation (one-time per project):
+  Call serena_activate_project() in opencode session
+
+mcp-git:
+  Install git for Windows from git-scm.com, add to PATH
+
+================================================================================
+6. ALL SKILLS LIST
+================================================================================
+
+CORE: caveman, karpathy-guidelines, impeccable, loop-engineering
+CAVEMAN: caveman-commit, caveman-compress, caveman-help, caveman-review, caveman-stats
+DESIGN/UI: ui-ux-pro-max, ui-ux-pro-max-skill, taste-design, taste-skill, frontend-design, banner-design, brand, brand-guidelines, design-system, design, design-motion-principles, slides, ui-styling, canvas-design, color-expert, gradient, GSAP skill, Responsive UI skill, web-design-guidelines, animation-vocabulary, algorithmic-art, emil-design-eng, review-animations, theme-factory
+SHOPIFY (19): shopify-admin, shopify-app-store-review, shopify-custom-data, shopify-customer, shopify-dev, shopify-functions, shopify-hydrogen, shopify-liquid, shopify-onboarding-dev, shopify-onboarding-merchant, shopify-partner, shopify-payments-apps, shopify-polaris-admin-extensions, shopify-polaris-app-home, shopify-polaris-checkout-extensions, shopify-polaris-customer-account-extensions, shopify-pos-ui, shopify-storefront-graphql, shopify-use-shopify-cli
+REACT/VERCEL (8): vercel-react-best-practices, vercel-composition-patterns, vercel-react-view-transitions, vercel-optimize, vercel-react-native-skills, vercel-cli-with-tokens, deploy-to-vercel, shadcn-ui
+STITCH (9): stitch-code-to-design, stitch-design-taste, stitch-extract-design-md, stitch-extract-static-html, stitch-generate-design, stitch-loop, stitch-manage-design-system, stitch-react-native, stitch-ui-design, stitch-upload-to-stitch
+AI/API: claude-api, claude-hud-statusline, supabase, supabase-postgres-best-practices
+DOCS/CONTENT: doc-coauthoring, docx, internal-comms, pdf, pptx, slack-gif-creator, writing-guidelines, xlsx
+QUALITY (17): accessibility-compliance-accessibility-audit, agency-agents-ai-specialists, brainstorming, cavecrew, diagnosing-bugs, dispatching-parallel-agents, domain-modeling, fixing-accessibility, mcp-builder, openclaw-control-center, playwright-cli, receiving-code-review, requesting-code-review, skill-creator, systematic-debugging, test-driven-development, verification-before-completion
+PLANNING (10): design-an-interface, executing-plans, find-skills, finishing-a-development-branch, inkos-multi-agent-novel-writing, subagent-driven-development, using-git-worktrees, using-superpowers, writing-plans, writing-skills
+OTHER: git-guardrails, local-legal-seo-audit, mobile-responsiveness, remotion, remotion-best-practices, seo-audit, ucp, understand-anything-knowledge-graph, webapp-testing, web-artifacts-builder
+
+================================================================================
+END — Everything is GLOBAL, DEFAULT, and WORKING
+Open ANY folder → All MCPs, skills, and plugins load automatically.
+================================================================================
